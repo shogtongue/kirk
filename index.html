@@ -462,22 +462,37 @@
       left: 0;
     }
 
-    /* Responsive layout for smaller screens */
+    /* Mobile layout (below 768px) */
 @media (max-width: 768px) {
   .dashboard {
     flex-direction: column;
-    padding: 20px;
+    padding: 15px;
   }
 
-  .card {
+  /* Hide the center chart by default */
+  #chart-container {
+    display: none;
+  }
+
+  /* Adjust section widths */
+  .timeline, .dossier, .notes {
     width: 100%;
     margin-bottom: 20px;
   }
 
-  h1 {
-    font-size: 1.5rem;
+  /* Optional: style a show chart button */
+  .show-chart-btn {
+    display: block;
+    width: 100%;
+    padding: 12px;
+    background: #111;
+    color: #fff;
+    border-radius: 8px;
+    text-align: center;
+    margin-bottom: 15px;
   }
 }
+
 
   </style>
 </head>
@@ -1170,6 +1185,15 @@ document.getElementById('commentInput').addEventListener('keypress', function(e)
 window.showDossier = showDossier;
 window.highlightNode = highlightNode;
 window.addComment = addComment;
+
+function toggleChart() {
+  const chart = document.getElementById('chart-container');
+  chart.style.display = chart.style.display === 'none' ? 'block' : 'none';
+  window.scrollTo({ top: chart.offsetTop, behavior: 'smooth' });
+}
+
 </script>
+<button class="show-chart-btn" onclick="toggleChart()">Show Interactive Map</button>
+
 </body>
 </html>

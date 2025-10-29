@@ -15,9 +15,14 @@
       --border-color: #e0e0e0;
       --accent-color: #000000;
       /* Heat color system */
-      --heat-1: #e8f5e8;   --heat-2: #c8e6c9;   --heat-3: #a5d6a7;   --heat-4: #81c784;   /* Green range */
-      --heat-5: #fff9c4;   --heat-6: #fff176;   --heat-7: #ffeb3b;   /* Yellow range */
-      --heat-8: #ffcdd2;   --heat-9: #ef9a9a;   --heat-10: #e57373;  /* Red range */
+      --heat-1: #e8f5e8;   --heat-2: #c8e6c9;   --heat-3: #a5d6a7;   --heat-4: #81c784;
+      --heat-5: #fff9c4;   --heat-6: #fff176;   --heat-7: #ffeb3b;
+      --heat-8: #ffcdd2;   --heat-9: #ef9a9a;   --heat-10: #e57373;
+    }
+
+    /* Reset and base styles */
+    * {
+      box-sizing: border-box;
     }
 
     html, body {
@@ -25,11 +30,11 @@
       margin: 0;
       background: var(--bg-primary);
       font-family: 'Inter', sans-serif;
-      overflow: auto;
+      overflow: hidden;
       color: var(--text-primary);
-      transition: all 0.3s ease;
     }
 
+    /* Start Screen */
     #startScreen {
       position: fixed;
       top: 0;
@@ -68,10 +73,10 @@
       100% { transform: scale(1); opacity: 1; }
     }
 
+    /* Mobile First Layout */
     #app {
-      display: grid;
-      grid-template-columns: 350px 1fr 400px;
-      grid-template-rows: 60px 1fr 250px;
+      display: flex;
+      flex-direction: column;
       height: 100vh;
       opacity: 0;
       transition: opacity 1s ease;
@@ -79,79 +84,188 @@
 
     .panel {
       background: var(--bg-secondary);
-      padding: 24px;
+      padding: 16px;
       overflow: auto;
       border: 1px solid var(--border-color);
     }
 
     #header { 
-      grid-column: 1 / span 3; 
-      grid-row: 1; 
       background: var(--bg-primary); 
       display: flex; 
-      justify-content: space-between; 
-      align-items: center; 
-      padding: 0 24px;
+      flex-direction: column;
+      gap: 12px;
+      padding: 12px 16px;
+      min-height: auto;
     }
-    #leftPanel { grid-column: 1; grid-row: 2 / span 2; }
-    #centerPanel { grid-column: 2; grid-row: 2; position: relative; background: var(--bg-primary); }
-    #rightPanel { grid-column: 3; grid-row: 2 / span 2; }
-    #bottomPanel { grid-column: 2; grid-row: 3; }
 
-    #visualization {
+    #mobileTabs {
+      display: flex;
+      background: var(--bg-secondary);
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .mobile-tab {
+      flex: 1;
+      padding: 12px;
+      background: none;
+      border: none;
+      font-family: 'Inter', sans-serif;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .mobile-tab.active {
+      background: var(--bg-primary);
+      border-bottom: 2px solid #000000;
+    }
+
+    .tab-content {
+      flex: 1;
+      overflow: auto;
+      display: none;
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
+    /* Tablet Layout */
+    @media (min-width: 768px) {
+      #app {
+        display: grid;
+        grid-template-areas: 
+          "header header"
+          "left center"
+          "bottom right";
+        grid-template-columns: 300px 1fr;
+        grid-template-rows: 80px 1fr 200px;
+      }
+
+      #header { 
+        grid-area: header; 
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0 24px;
+      }
+
+      #leftPanel { grid-area: left; }
+      #centerPanel { grid-area: center; }
+      #rightPanel { grid-area: right; }
+      #bottomPanel { grid-area: bottom; }
+
+      #mobileTabs {
+        display: none;
+      }
+
+      .tab-content {
+        display: block !important;
+      }
+    }
+
+    /* Desktop Layout */
+    @media (min-width: 1024px) {
+      #app {
+        grid-template-areas: 
+          "header header header"
+          "left center right"
+          "bottom bottom bottom";
+        grid-template-columns: 350px 1fr 400px;
+        grid-template-rows: 60px 1fr 250px;
+      }
+    }
+
+    /* Visualization */
+    #visualizationContainer {
       width: 100%;
       height: 100%;
-      background: var(--bg-primary);
       position: relative;
-      overflow: hidden;
-    }
-
-    .node {
-      position: absolute;
-      border-radius: 50%;
-      transform: translate(-50%, -50%);
-      cursor: pointer;
-      transition: all 0.3s ease;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-      z-index: 10;
-      border: 2px solid rgba(0,0,0,0.1);
-    }
-
-    .node:hover {
-      transform: translate(-50%, -50%) scale(1.2);
-      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-      z-index: 30;
-    }
-
-    .node-label {
-      position: absolute;
-      font-size: 11px;
-      font-weight: 500;
-      color: var(--text-primary);
       background: var(--bg-primary);
-      padding: 4px 8px;
-      border: 1px solid var(--border-color);
-      border-radius: 3px;
-      white-space: nowrap;
-      pointer-events: none;
-      z-index: 20;
-      opacity: 0;
-      transition: opacity 0.2s ease;
     }
 
-    .node:hover .node-label {
-      opacity: 1;
+    #networkCanvas {
+      display: block;
+      width: 100%;
+      height: 100%;
     }
 
-    .connection {
+    .canvas-overlay {
       position: absolute;
-      height: 1px;
-      background: #cccccc;
-      transform-origin: 0 0;
+      top: 0;
+      left: 0;
       pointer-events: none;
-      z-index: 1;
     }
 
+    /* Mobile Controls */
+    .mobile-controls {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      z-index: 100;
+    }
+
+    .control-pill {
+      background: rgba(255, 255, 255, 0.95);
+      border: 1px solid var(--border-color);
+      border-radius: 20px;
+      padding: 10px 16px;
+      font-size: 12px;
+      font-weight: 500;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+      transition: all 0.2s ease;
+    }
+
+    .control-pill:hover {
+      background: #ffffff;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    }
+
+    /* Desktop Controls */
+    .controls {
+      position: absolute;
+      bottom: 20px;
+      left: 20px;
+      display: none;
+      gap: 10px;
+      z-index: 100;
+    }
+
+    @media (min-width: 768px) {
+      .mobile-controls {
+        display: none;
+      }
+
+      .controls {
+        display: flex;
+      }
+    }
+
+    .control-btn {
+      background: rgba(255, 255, 255, 0.9);
+      border: 1px solid var(--border-color);
+      color: var(--text-primary);
+      padding: 8px 12px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: 500;
+    }
+
+    .control-btn:hover {
+      background: #ffffff;
+      border-color: #000000;
+    }
+
+    /* Common Components */
     h1, h2, h3, h4 {
       font-family: 'Inter', sans-serif;
       margin: 0 0 16px 0;
@@ -159,20 +273,29 @@
       font-weight: 600;
     }
 
-    h1 { font-size: 24px; }
-    h2 { font-size: 18px; margin-bottom: 20px; }
-    h3 { font-size: 16px; margin-bottom: 12px; }
-    h4 { font-size: 14px; margin-bottom: 8px; }
+    h1 { font-size: 18px; }
+    h2 { font-size: 16px; margin-bottom: 12px; }
+    h3 { font-size: 14px; margin-bottom: 8px; }
 
     .search-box {
-      width: 300px;
-      padding: 12px 16px;
+      width: 100%;
+      padding: 10px 12px;
       background: var(--bg-secondary);
       border: 1px solid var(--border-color);
-      border-radius: 8px;
+      border-radius: 6px;
       color: var(--text-primary);
       font-family: 'Inter', sans-serif;
       font-size: 14px;
+    }
+
+    @media (min-width: 768px) {
+      h1 { font-size: 24px; }
+      h2 { font-size: 18px; margin-bottom: 20px; }
+      
+      .search-box {
+        width: 300px;
+        padding: 12px 16px;
+      }
     }
 
     .search-box:focus {
@@ -180,6 +303,7 @@
       border-color: #000000;
     }
 
+    /* Person Items */
     .person-item {
       padding: 12px;
       margin: 8px 0;
@@ -195,13 +319,19 @@
       transform: translateX(4px);
     }
 
-    .heat-bar {
-      display: inline-block;
-      background: #000000;
-      height: 4px;
-      margin-left: 8px;
-      vertical-align: middle;
-      border-radius: 2px;
+    .person-card {
+      padding: 16px;
+      margin: 12px 0;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      background: var(--bg-primary);
+    }
+
+    .card-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: between;
+      margin-bottom: 8px;
     }
 
     .heat-score {
@@ -215,6 +345,20 @@
       border-radius: 3px;
     }
 
+    .role {
+      font-size: 12px;
+      color: var(--text-secondary);
+      margin-top: 4px;
+    }
+
+    .status {
+      font-size: 11px;
+      color: var(--text-secondary);
+      margin-top: 2px;
+      font-weight: 500;
+    }
+
+    /* Timeline */
     .timeline-event {
       padding: 12px;
       margin: 8px 0;
@@ -253,118 +397,7 @@
       text-decoration: underline;
     }
 
-    .comment {
-      padding: 12px;
-      margin: 8px 0;
-      border: 1px solid var(--border-color);
-      background: var(--bg-primary);
-      border-radius: 6px;
-    }
-
-    textarea {
-      width: 100%;
-      padding: 12px;
-      background: var(--bg-primary);
-      border: 1px solid var(--border-color);
-      border-radius: 6px;
-      color: var(--text-primary);
-      font-family: 'Inter', sans-serif;
-      font-size: 13px;
-      resize: vertical;
-      min-height: 80px;
-    }
-
-    button {
-      background: #000000;
-      border: none;
-      color: #ffffff;
-      padding: 10px 20px;
-      border-radius: 6px;
-      cursor: pointer;
-      font-family: 'Inter', sans-serif;
-      font-size: 13px;
-      font-weight: 500;
-      transition: all 0.2s ease;
-    }
-
-    button:hover {
-      background: #333333;
-    }
-
-    .role {
-      font-size: 12px;
-      color: var(--text-secondary);
-      margin-top: 4px;
-    }
-
-    .status {
-      font-size: 11px;
-      color: var(--text-secondary);
-      margin-top: 2px;
-      font-weight: 500;
-    }
-
-    .credits {
-      margin-top: 30px;
-      padding-top: 20px;
-      border-top: 1px solid var(--border-color);
-    }
-
-    .credit-link {
-      color: var(--text-primary);
-      text-decoration: none;
-      font-weight: 500;
-    }
-
-    .credit-link:hover {
-      text-decoration: underline;
-    }
-
-    .heat-bar-visual {
-      display: flex;
-      align-items: center;
-      margin: 8px 0;
-    }
-
-    .heat-bar-fill {
-      height: 6px;
-      background: #000000;
-      border-radius: 3px;
-      margin-right: 8px;
-    }
-
-    .heat-bar-empty {
-      height: 6px;
-      background: #e0e0e0;
-      border-radius: 3px;
-      flex: 1;
-    }
-
-    .controls {
-      position: absolute;
-      bottom: 20px;
-      left: 20px;
-      display: flex;
-      gap: 10px;
-      z-index: 100;
-    }
-
-    .control-btn {
-      background: rgba(255, 255, 255, 0.9);
-      border: 1px solid var(--border-color);
-      color: var(--text-primary);
-      padding: 8px 12px;
-      border-radius: 4px;
-      cursor: pointer;
-      font-size: 12px;
-      font-weight: 500;
-    }
-
-    .control-btn:hover {
-      background: #ffffff;
-      border-color: #000000;
-    }
-
+    /* Filter Sections */
     .filter-section {
       margin: 20px 0;
     }
@@ -396,6 +429,7 @@
       margin: 10px 0;
     }
 
+    /* Group Indicators */
     .group-indicator {
       display: inline-block;
       width: 8px;
@@ -405,6 +439,7 @@
     }
 
     .group-victim { background: #000000; }
+    .group-family { background: #333333; }
     .group-security { background: #444444; }
     .group-tpusa { background: #888888; }
     .group-event { background: #aaaaaa; }
@@ -413,10 +448,16 @@
     .group-investigators { background: #666666; }
 
     .header-subtitle {
-      font-size: 14px;
+      font-size: 12px;
       font-weight: 500;
       color: var(--text-secondary);
-      margin-left: 10px;
+    }
+
+    @media (min-width: 768px) {
+      .header-subtitle {
+        font-size: 14px;
+        margin-left: 10px;
+      }
     }
 
     .header-link {
@@ -428,72 +469,44 @@
       text-decoration: underline;
     }
 
-    .concentric-circle {
-      position: absolute;
-      border-radius: 50%;
-      border: 1px dashed rgba(0,0,0,0.1);
-      transform: translate(-50%, -50%);
+    .credits {
+      margin-top: 30px;
+      padding-top: 20px;
+      border-top: 1px solid var(--border-color);
+    }
+
+    .credit-link {
+      color: var(--text-primary);
+      text-decoration: none;
+      font-weight: 500;
+    }
+
+    .credit-link:hover {
+      text-decoration: underline;
+    }
+
+    /* Loading States */
+    .loading {
+      opacity: 0.6;
       pointer-events: none;
-      z-index: 0;
     }
 
-    .circle-label {
-      position: absolute;
-      font-size: 10px;
-      color: var(--text-secondary);
-      background: rgba(255,255,255,0.8);
-      padding: 2px 6px;
-      border-radius: 3px;
-      pointer-events: none;
-      z-index: 1;
+    .loading::after {
+      content: 'Loading...';
+      display: block;
+      text-align: center;
+      padding: 20px;
     }
 
-    /* New styles for scalable visualization */
-    #visualizationContainer {
-      width: 100%;
-      height: 100%;
-      position: relative;
-      overflow: auto;
+    /* Error States */
+    .error {
+      background: #ffebee;
+      border: 1px solid #f44336;
+      color: #c62828;
+      padding: 12px;
+      border-radius: 6px;
+      margin: 8px 0;
     }
-
-    #networkCanvas {
-      position: absolute;
-      top: 0;
-      left: 0;
-    }
-
-    /* Mobile layout (below 768px) */
-@media (max-width: 768px) {
-  .dashboard {
-    flex-direction: column;
-    padding: 15px;
-  }
-
-  /* Hide the center chart by default */
-  #chart-container {
-    display: none;
-  }
-
-  /* Adjust section widths */
-  .timeline, .dossier, .notes {
-    width: 100%;
-    margin-bottom: 20px;
-  }
-
-  /* Optional: style a show chart button */
-  .show-chart-btn {
-    display: block;
-    width: 100%;
-    padding: 12px;
-    background: #111;
-    color: #fff;
-    border-radius: 8px;
-    text-align: center;
-    margin-bottom: 15px;
-  }
-}
-
-
   </style>
 </head>
 <body>
@@ -507,69 +520,76 @@
   <div id="app">
     <!-- HEADER -->
     <div id="header" class="panel">
-      <div style="display: flex; align-items: center;">
+      <div style="display: flex; align-items: center; flex-wrap: wrap; gap: 8px;">
         <h1>CHARLIE KIRK INVESTIGATION</h1>
         <div class="header-subtitle">
-          • Research by <a href="https://x.com/shogtongue" class="header-link" target="_blank">@shogtongue</a>
-          • Additional Research by <a href="https://x.com/Piper_truth1" class="header-link" target="_blank">@Piper_truth1</a>
+          • Research by <a href="https://x.com/shogtongue" class="header-link" target="_blank" rel="noopener noreferrer">@shogtongue</a>
+          • Additional Research by <a href="https://x.com/Piper_truth1" class="header-link" target="_blank" rel="noopener noreferrer">@Piper_truth1</a>
         </div>
       </div>
-      <input type="text" class="search-box" placeholder="Search people and events..." id="searchBox">
+      <input type="text" class="search-box" placeholder="Search people and events..." id="searchBox" aria-label="Search investigation data">
+    </div>
+
+    <!-- MOBILE TABS -->
+    <div id="mobileTabs">
+      <button class="mobile-tab active" data-tab="map">Map</button>
+      <button class="mobile-tab" data-tab="people">People</button>
+      <button class="mobile-tab" data-tab="timeline">Timeline</button>
     </div>
 
     <!-- LEFT PANEL -->
-    <div id="leftPanel" class="panel">
+    <div id="leftPanel" class="panel tab-content active" data-tab-content="timeline">
       <h2>TIMELINE</h2>
       <div id="timeline">
         <div class="timeline-event" data-date="2025-09-05">
           <div class="timeline-date">Sep 5, 2025</div>
           <div class="timeline-desc">Stagwell report leaks Israel reputation crisis roadmap</div>
-          <a href="https://www.dropsitenews.com/p/leaked-israel-reputation-survey-research-mark-penn-stagwell?utm_source=publication-search" class="x-link" target="_blank">View thread →</a>
+          <a href="https://www.dropsitenews.com/p/leaked-israel-reputation-survey-research-mark-penn-stagwell?utm_source=publication-search" class="x-link" target="_blank" rel="noopener noreferrer">View thread →</a>
         </div>
         <div class="timeline-event" data-date="2025-09-08">
           <div class="timeline-date">Sep 8, 2025</div>
           <div class="timeline-desc">Jerusalem attack kills 6, highlighting security threats</div>
-          <a href="https://www.timesofisrael.com/jerusalem-terror-attack-exposes-fresh-holes-in-reliance-on-west-bank-security-barrier/" class="x-link" target="_blank">View thread →</a>
+          <a href="https://www.timesofisrael.com/jerusalem-terror-attack-exposes-fresh-holes-in-reliance-on-west-bank-security-barrier/" class="x-link" target="_blank" rel="noopener noreferrer">View thread →</a>
         </div>
         <div class="timeline-event" data-date="2025-09-10">
           <div class="timeline-date">Sep 10, 2025 • 12:23:15 MT</div>
           <div class="timeline-desc">Charlie Kirk shot during UVU Q&A with Hunter Kozak</div>
-          <a href="https://abcnews.go.com/US/charlie-kirk-shot-event-utah-university-jd-vance/story?id=125451514" class="x-link" target="_blank">View thread →</a>
+          <a href="https://abcnews.go.com/US/charlie-kirk-shot-event-utah-university-jd-vance/story?id=125451514" class="x-link" target="_blank" rel="noopener noreferrer">View thread →</a>
         </div>
         <div class="timeline-event" data-date="2025-09-12">
           <div class="timeline-date">Sep 12, 2025</div>
           <div class="timeline-desc">Tyler Robinson arrested, charged with aggravated murder</div>
-          <a href="https://www.pbs.org/newshour/nation/what-we-know-so-far-about-the-charlie-kirk-shooting-suspect" class="x-link" target="_blank">View thread →</a>
+          <a href="https://www.pbs.org/newshour/nation/what-we-know-so-far-about-the-charlie-kirk-shooting-suspect" class="x-link" target="_blank" rel="noopener noreferrer">View thread →</a>
         </div>
         <div class="timeline-event" data-date="2025-09-13">
           <div class="timeline-date">Sep 13, 2025</div>
           <div class="timeline-desc">Initial investigation notes hit shakes U.S. conservatives</div>
-          <a href="https://www.abc.net.au/news/2025-09-12/charlie-kirk-assassination-test-for-donald-trump/105765246" class="x-link" target="_blank">View thread →</a>
+          <a href="https://www.abc.net.au/news/2025-09-12/charlie-kirk-assassination-test-for-donald-trump/105765246" class="x-link" target="_blank" rel="noopener noreferrer">View thread →</a>
         </div>
         <div class="timeline-event" data-date="2025-09-29">
           <div class="timeline-date">Sep 29, 2025</div>
           <div class="timeline-desc">First ID of Consolidated Training Groups</div>
-          <a href="https://x.com/Piper_truth1/status/1972472141661802760" class="x-link" target="_blank">View thread →</a>
+          <a href="https://x.com/Piper_truth1/status/1972472141661802760" class="x-link" target="_blank" rel="noopener noreferrer">View thread →</a>
         </div>
         <div class="timeline-event" data-date="2025-10-01">
           <div class="timeline-date">Oct 01, 2025</div>
           <div class="timeline-desc">First ID of Rick Cutler</div>
-          <a href="https://x.com/Piper_truth1/status/1973433316234969154" class="x-link" target="_blank">View thread →</a>
+          <a href="https://x.com/Piper_truth1/status/1973433316234969154" class="x-link" target="_blank" rel="noopener noreferrer">View thread →</a>
         </div>
         <div class="timeline-event" data-date="2025-10-05">
           <div class="timeline-date">Oct 5, 2025</div>
           <div class="timeline-desc">Mega-thread connects security > OUR > LDS > trafficking networks</div>
-          <a href="https://x.com/shogtongue/status/1974671213416042856" class="x-link" target="_blank">View thread →</a>
+          <a href="https://x.com/shogtongue/status/1974671213416042856" class="x-link" target="_blank" rel="noopener noreferrer">View thread →</a>
         </div>
         <div class="timeline-event" data-date="2025-10-17">
           <div class="timeline-date">Oct 17, 2025</div>
           <div class="timeline-desc">Video analysis proves security countdown coordination</div>
-          <a href="https://x.com/shogtongue/status/1979107661288243489" class="x-link" target="_blank">View thread →</a>
+          <a href="https://x.com/shogtongue/status/1979107661288243489" class="x-link" target="_blank" rel="noopener noreferrer">View thread →</a>
         </div>
         <div class="timeline-event" data-date="2025-10-21">
           <div class="timeline-date">Oct 21, 2025</div>
           <div class="timeline-desc">New footage analysis reveals additional security movements</div>
-          <a href="https://x.com/shogtongue/status/1980896905740833050" class="x-link" target="_blank">View thread →</a>
+          <a href="https://x.com/shogtongue/status/1980896905740833050" class="x-link" target="_blank" rel="noopener noreferrer">View thread →</a>
         </div>
       </div>
 
@@ -578,6 +598,7 @@
         <div class="filter-options" id="groupFilters">
           <div class="filter-option active" data-group="all">All</div>
           <div class="filter-option" data-group="victim">Victim</div>
+          <div class="filter-option" data-group="family">Family</div>
           <div class="filter-option" data-group="security">Security</div>
           <div class="filter-option" data-group="tpusa">TPUSA</div>
           <div class="filter-option" data-group="event">Event</div>
@@ -589,38 +610,53 @@
 
       <div class="filter-section">
         <h3>MINIMUM HEAT SCORE</h3>
-        <input type="range" min="1" max="10" value="1" class="heat-slider" id="heatSlider">
+        <input type="range" min="1" max="10" value="1" class="heat-slider" id="heatSlider" aria-label="Minimum heat score">
         <div style="font-size: 12px; text-align: center;">Heat: <span id="heatValue">1</span>/10</div>
       </div>
 
       <div class="credits">
         <h3>RESEARCH CREDITS</h3>
         <div style="font-size: 13px; line-height: 1.6;">
-          Primary Investigation: <a href="https://x.com/shogtongue" class="credit-link" target="_blank">@shogtongue</a><br>
-          Security Team IDs: <a href="https://x.com/Piper_truth1" class="credit-link" target="_blank">@Piper_truth1</a><br>
-          LDS Network Research: <a href="https://x.com/TheLFLounge" class="credit-link" target="_blank">@TheLFLounge</a>
+          Primary Investigation: <a href="https://x.com/shogtongue" class="credit-link" target="_blank" rel="noopener noreferrer">@shogtongue</a><br>
+          Security Team IDs: <a href="https://x.com/Piper_truth1" class="credit-link" target="_blank" rel="noopener noreferrer">@Piper_truth1</a><br>
+          LDS Network Research: <a href="https://x.com/TheLFLounge" class="credit-link" target="_blank" rel="noopener noreferrer">@TheLFLounge</a>
         </div>
       </div>
     </div>
 
     <!-- CENTER PANEL - NETWORK VISUALIZATION -->
-    <div id="centerPanel" class="panel">
+    <div id="centerPanel" class="panel tab-content active" data-tab-content="map">
       <div id="visualizationContainer">
-        <div id="visualization">
-          <!-- Network circles and connections will be rendered here -->
-        </div>
+        <canvas id="networkCanvas"></canvas>
+        <div class="canvas-overlay" id="canvasOverlay"></div>
       </div>
+      
+      <!-- Desktop Controls -->
       <div class="controls">
         <button class="control-btn" id="resetView">Reset View</button>
         <button class="control-btn" id="toggleLabels">Show Labels</button>
         <button class="control-btn" id="toggleConnections">Hide Connections</button>
-        <button class="control-btn" id="zoomIn">Zoom In</button>
-        <button class="control-btn" id="zoomOut">Zoom Out</button>
+      </div>
+
+      <!-- Mobile Controls -->
+      <div class="mobile-controls">
+        <button class="control-pill" data-action="filter">
+          <span class="icon">🔍</span>
+          Filter
+        </button>
+        <button class="control-pill" data-action="search">
+          <span class="icon">👥</span>  
+          People
+        </button>
+        <button class="control-pill" data-action="reset">
+          <span class="icon">🔄</span>
+          Reset
+        </button>
       </div>
     </div>
 
     <!-- RIGHT PANEL - DOSSIER & PEOPLE -->
-    <div id="rightPanel" class="panel">
+    <div id="rightPanel" class="panel tab-content" data-tab-content="people">
       <h2>INVESTIGATION DOSSIER</h2>
       <div id="dossierContent">
         <p style="color: var(--text-secondary); font-size: 13px;">Select a person to view detailed information</p>
@@ -632,32 +668,24 @@
       </div>
     </div>
 
-    <!-- BOTTOM PANEL - COMMENTS -->
-    <div id="bottomPanel" class="panel">
-      <h2>INVESTIGATOR NOTES</h2>
-      <div id="commentsList">
-        <div class="comment">
-          <strong>@shogtongue</strong> • Critical finding: Frank Turek pointing at roof 4 minutes before shot indicates prior knowledge of shooter position.
-        </div>
-        <div class="comment">
-          <strong>Researcher</strong> • SD card removal by Terryl needs deeper analysis. Potential evidence suppression.
-        </div>
-      </div>
-      <textarea placeholder="Add your investigation notes..." id="commentInput"></textarea>
-      <button onclick="addComment()" style="margin-top: 12px;">POST NOTE</button>
+    <!-- BOTTOM PANEL - REMOVED INVESTIGATOR NOTES -->
+    <div id="bottomPanel" class="panel" style="display: none;">
+      <!-- Investigator notes removed as requested -->
     </div>
   </div>
 
 <script>
-// COMPREHENSIVE INVESTIGATION DATA
+// COMPREHENSIVE INVESTIGATION DATA (Fixed and Updated)
 const investigationData = {
   people: [
-    // VICTIM & FAMILY
+    // VICTIM (Only Charlie Kirk)
     {id: 0, name: "Charlie Kirk", group: "victim", heat: 1, role: "TPUSA Founder/CEO", status: "Deceased", title: "Victim", details: "Fatally shot at 12:23:15 PM MT during UVU event. Single bullet from rooftop. Central focus of investigation."},
-    {id: 1, name: "Erika Kirk", group: "victim", heat: 7, role: "Wife, CEO & Chair of the Board", status: "Active", title: "Wife & CEO", details: "DoD contractor family. Dad helped install Israel's Iron Dome. Received calls post-shot from Mikey McCoy. Elected unanimously on September 18, 2025, to lead post-Charlie Kirk's death. Oversees operations and strategic direction."},
-    {id: 2, name: "Mary Kirk", group: "victim", heat: 1, role: "Family Member", status: "Active", title: "Family Member", details: "No specific event role; family mention only."},
-    {id: 3, name: "Robert K. Kirk", group: "victim", heat: 1, role: "Family Member", status: "Active", title: "Family Member", details: "No specific event role; family mention only."},
-    {id: 4, name: "Kimberly Kirk", group: "victim", heat: 1, role: "Family Member", status: "Active", title: "Family Member", details: "No specific event role; family mention only."},
+    
+    // FAMILY (Formerly classified as victim)
+    {id: 1, name: "Erika Kirk", group: "family", heat: 7, role: "Wife, CEO & Chair of the Board", status: "Active", title: "Wife & CEO", details: "DoD contractor family. Dad helped install Israel's Iron Dome. Received calls post-shot from Mikey McCoy. Elected unanimously on September 18, 2025, to lead post-Charlie Kirk's death. Oversees operations and strategic direction."},
+    {id: 2, name: "Mary Kirk", group: "family", heat: 1, role: "Family Member", status: "Active", title: "Family Member", details: "No specific event role; family mention only."},
+    {id: 3, name: "Robert K. Kirk", group: "family", heat: 1, role: "Family Member", status: "Active", title: "Family Member", details: "No specific event role; family mention only."},
+    {id: 4, name: "Kimberly Kirk", group: "family", heat: 1, role: "Family Member", status: "Active", title: "Family Member", details: "No specific event role; family mention only."},
     
     // SECURITY TEAM
     {id: 6, name: "Brian Harpole", group: "security", heat: 10, role: "Security Lead", status: "Missing", title: "Director, Consolidated Training Group", details: "Applied IFAK trauma kit. First responder. Security detail for Mikey McCoy/Erika Kirk after UVU. Countdown coordination observed."},
@@ -719,7 +747,6 @@ const investigationData = {
     {source: 0, target: 14, type: "employment", weight: 8},
     {source: 0, target: 15, type: "employment", weight: 7},
     {source: 0, target: 20, type: "organization", weight: 6},
-    {source: 0, target: 23, type: "event", weight: 6},
     {source: 6, target: 7, type: "collaboration", weight: 9},
     {source: 6, target: 8, type: "coordination", weight: 7},
     {source: 7, target: 29, type: "affiliation", weight: 7},
@@ -745,8 +772,200 @@ let appState = {
   minHeat: 1,
   zoomLevel: 1.0,
   offsetX: 0,
-  offsetY: 0
+  offsetY: 0,
+  currentView: 'desktop'
 };
+
+let networkViz;
+
+// CANVAS-BASED VISUALIZATION
+class NetworkVisualization {
+  constructor() {
+    this.canvas = document.getElementById('networkCanvas');
+    this.ctx = this.canvas.getContext('2d');
+    this.overlay = document.getElementById('canvasOverlay');
+    this.nodes = [];
+    this.connections = [];
+    this.hoveredNode = null;
+    this.selectedNode = null;
+    
+    this.setupCanvas();
+    this.setupInteractions();
+  }
+
+  setupCanvas() {
+    this.resize();
+    window.addEventListener('resize', this.resize.bind(this));
+  }
+
+  resize() {
+    const container = this.canvas.parentElement;
+    this.canvas.width = container.clientWidth;
+    this.canvas.height = container.clientHeight;
+    this.render();
+  }
+
+  setupInteractions() {
+    this.canvas.addEventListener('mousemove', this.handleMouseMove.bind(this));
+    this.canvas.addEventListener('click', this.handleClick.bind(this));
+    
+    // Touch events for mobile
+    this.canvas.addEventListener('touchstart', this.handleTouch.bind(this));
+    this.canvas.addEventListener('touchmove', this.handleTouch.bind(this));
+  }
+
+  handleMouseMove(event) {
+    const rect = this.canvas.getBoundingClientRect();
+    const x = event.clientX - rect.left;
+    const y = event.clientY - rect.top;
+
+    this.hoveredNode = this.getNodeAt(x, y);
+    this.render();
+  }
+
+  handleClick(event) {
+    if (this.hoveredNode) {
+      this.selectedNode = this.hoveredNode;
+      showDossier(this.hoveredNode.id);
+    }
+  }
+
+  handleTouch(event) {
+    event.preventDefault();
+    if (event.touches.length === 1) {
+      const touch = event.touches[0];
+      const rect = this.canvas.getBoundingClientRect();
+      const x = touch.clientX - rect.left;
+      const y = touch.clientY - rect.top;
+
+      if (event.type === 'touchstart') {
+        const node = this.getNodeAt(x, y);
+        if (node) {
+          this.selectedNode = node;
+          showDossier(node.id);
+        }
+      }
+    }
+  }
+
+  getNodeAt(x, y) {
+    for (const node of this.nodes) {
+      const distance = Math.sqrt(
+        Math.pow(node.x - x, 2) + Math.pow(node.y - y, 2)
+      );
+      if (distance <= node.radius) {
+        return node;
+      }
+    }
+    return null;
+  }
+
+  render() {
+    this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+    
+    // Render connections
+    if (appState.showConnections) {
+      this.renderConnections();
+    }
+    
+    // Render nodes
+    this.renderNodes();
+    
+    // Render labels
+    if (appState.showLabels || this.hoveredNode) {
+      this.renderLabels();
+    }
+  }
+
+  renderNodes() {
+    this.nodes.forEach(node => {
+      this.ctx.beginPath();
+      this.ctx.arc(node.x, node.y, node.radius, 0, 2 * Math.PI);
+      
+      // Color based on heat
+      this.ctx.fillStyle = this.getHeatColor(node.heat);
+      this.ctx.fill();
+      
+      // Border for selected/hovered nodes
+      if (node === this.selectedNode) {
+        this.ctx.strokeStyle = '#ff0000';
+        this.ctx.lineWidth = 3;
+        this.ctx.stroke();
+      } else if (node === this.hoveredNode) {
+        this.ctx.strokeStyle = '#000000';
+        this.ctx.lineWidth = 2;
+        this.ctx.stroke();
+      }
+    });
+  }
+
+  renderConnections() {
+    this.connections.forEach(conn => {
+      const source = this.nodes.find(n => n.id === conn.source);
+      const target = this.nodes.find(n => n.id === conn.target);
+      
+      if (source && target) {
+        this.ctx.beginPath();
+        this.ctx.moveTo(source.x, source.y);
+        this.ctx.lineTo(target.x, target.y);
+        this.ctx.strokeStyle = `rgba(0, 0, 0, ${0.2 + conn.weight / 20})`;
+        this.ctx.lineWidth = conn.weight / 5;
+        this.ctx.stroke();
+      }
+    });
+  }
+
+  renderLabels() {
+    this.ctx.fillStyle = '#000000';
+    this.ctx.font = '11px Inter';
+    this.ctx.textAlign = 'center';
+    
+    this.nodes.forEach(node => {
+      if (node === this.hoveredNode || node === this.selectedNode || appState.showLabels) {
+        this.ctx.fillText(
+          `${node.name} (${node.heat}/10)`,
+          node.x,
+          node.y + node.radius + 15
+        );
+      }
+    });
+  }
+
+  getHeatColor(heat) {
+    const colors = [
+      '#e8f5e8', '#c8e6c9', '#a5d6a7', '#81c784', // 1-4
+      '#fff9c4', '#fff176', '#ffeb3b',             // 5-7  
+      '#ffcdd2', '#ef9a9a', '#e57373'              // 8-10
+    ];
+    return colors[heat - 1] || colors[0];
+  }
+
+  updateData(people, connections) {
+    this.nodes = people.map(person => ({
+      ...person,
+      x: this.canvas.width / 2,
+      y: this.canvas.height / 2,
+      radius: 5 + person.heat * 2
+    }));
+    
+    this.connections = connections;
+    this.layoutNodes();
+    this.render();
+  }
+
+  layoutNodes() {
+    // Simple circular layout for demo
+    const centerX = this.canvas.width / 2;
+    const centerY = this.canvas.height / 2;
+    const radius = Math.min(centerX, centerY) * 0.7;
+    
+    this.nodes.forEach((node, index) => {
+      const angle = (index / this.nodes.length) * 2 * Math.PI;
+      node.x = centerX + radius * Math.cos(angle);
+      node.y = centerY + radius * Math.sin(angle);
+    });
+  }
+}
 
 // START SCREEN & INITIALIZATION
 document.getElementById('startScreen').addEventListener('click', function() {
@@ -759,248 +978,48 @@ document.getElementById('startScreen').addEventListener('click', function() {
 });
 
 function initializeDashboard() {
-  renderNetworkVisualization();
+  networkViz = new NetworkVisualization();
   renderPeopleList();
   setupSearch();
   setupFilters();
   setupControls();
+  setupMobileTabs();
   showDossier(0);
+  updateVisualization();
 }
 
-// SCALED CONCENTRIC CIRCLE POSITIONING
-function calculateConcentricPosition(person, index, groupMembers) {
-  const container = document.getElementById('visualization');
-  const centerX = (container.clientWidth / 2) + appState.offsetX;
-  const centerY = (container.clientHeight / 2) + appState.offsetY;
-  
-  // Scale down the radii to fit better in the container
-  const scaleFactor = 0.6; // Reduced from full size
-  const baseRadii = [0, 60, 120, 180, 240, 300, 360];
-  const scaledRadii = baseRadii.map(radius => radius * scaleFactor * appState.zoomLevel);
-  
-  // Define circle layers based on groups and relationships
-  const circleLayers = {
-    // Layer 0: Charlie Kirk (center)
-    0: { radius: scaledRadii[0], label: "Charlie Kirk" },
-    
-    // Layer 1: Immediate family and closest associates
-    1: { radius: scaledRadii[1], groups: ["X"], label: "Family & Close Associates" },
-    
-    // Layer 2: TPUSA leadership and board
-    2: { radius: scaledRadii[2], groups: ["tpusa"], label: "TPUSA Leadership" },
-    
-    // Layer 3: Security team
-    3: { radius: scaledRadii[3], groups: ["security"], label: "Security Team" },
-    
-    // Layer 4: Event personnel
-    4: { radius: scaledRadii[4], groups: ["event"], label: "Event Personnel" },
-    
-    // Layer 5: Network connections
-    5: { radius: scaledRadii[5], groups: ["network"], label: "Network" },
-    
-    // Layer 6: Investigators and suspect
-    6: { radius: scaledRadii[6], groups: ["investigators", "suspect"], label: "Investigators & Suspect" }
-  };
-  
-  // Find which layer this person belongs to
-  let layer = 6; // Default to outermost layer
-  for (let i = 0; i <= 6; i++) {
-    if (i === 0 && person.id === 0) {
-      layer = 0;
-      break;
-    } else if (circleLayers[i].groups && circleLayers[i].groups.includes(person.group)) {
-      layer = i;
-      break;
-    }
-  }
-  
-  const layerConfig = circleLayers[layer];
-  const peopleInLayer = groupMembers.filter(p => {
-    if (p.id === 0) return layer === 0;
-    return circleLayers[layer].groups && circleLayers[layer].groups.includes(p.group);
-  });
-  
-  const layerIndex = peopleInLayer.indexOf(person);
-  const totalInLayer = peopleInLayer.length;
-  
-  // Calculate angle around the circle
-  const angle = (layerIndex / totalInLayer) * 2 * Math.PI;
-  
-  // Calculate position
-  const x = centerX + layerConfig.radius * Math.cos(angle);
-  const y = centerY + layerConfig.radius * Math.sin(angle);
-  
-  return { x, y, layer };
-}
-
-// SCALED CONCENTRIC CIRCLE VISUALIZATION
-function renderNetworkVisualization() {
-  const container = document.getElementById('visualization');
-  container.innerHTML = '';
-  
-  const width = container.clientWidth;
-  const height = container.clientHeight;
-
-  // Filter people based on current filters
+function updateVisualization() {
   const filteredPeople = investigationData.people.filter(person => 
     (appState.currentFilter === "all" || person.group === appState.currentFilter) &&
     person.heat >= appState.minHeat
   );
 
-  // Calculate center point
-  const centerX = (width / 2) + appState.offsetX;
-  const centerY = (height / 2) + appState.offsetY;
-
-  // Draw concentric circles (scaled)
-  const scaleFactor = 0.6;
-  const baseRadii = [0, 60, 120, 180, 240, 300, 360];
-  const scaledRadii = baseRadii.map(radius => radius * scaleFactor * appState.zoomLevel);
-  const circleLabels = [
-    "Charlie Kirk",
-    "Family & Close Associates", 
-    "TPUSA Leadership",
-    "Security Team",
-    "Event Personnel",
-    "Network",
-    "Investigators & Suspect"
-  ];
-
-  for (let i = 1; i < scaledRadii.length; i++) {
-    const circle = document.createElement('div');
-    circle.className = 'concentric-circle';
-    circle.style.width = scaledRadii[i] * 2 + 'px';
-    circle.style.height = scaledRadii[i] * 2 + 'px';
-    circle.style.left = centerX + 'px';
-    circle.style.top = centerY + 'px';
-    container.appendChild(circle);
-    
-    // Add circle label
-    const label = document.createElement('div');
-    label.className = 'circle-label';
-    label.textContent = circleLabels[i];
-    label.style.left = (centerX + scaledRadii[i] + 10) + 'px';
-    label.style.top = centerY + 'px';
-    container.appendChild(label);
-  }
-
-  // Group people by their groups for positioning
-  const peopleByGroup = {};
-  filteredPeople.forEach(person => {
-    if (!peopleByGroup[person.group]) {
-      peopleByGroup[person.group] = [];
-    }
-    peopleByGroup[person.group].push(person);
+  const filteredConnections = investigationData.connections.filter(conn => {
+    const source = investigationData.people.find(p => p.id === conn.source);
+    const target = investigationData.people.find(p => p.id === conn.target);
+    return source && target && filteredPeople.includes(source) && filteredPeople.includes(target);
   });
 
-  // Create connections FIRST (so they appear behind nodes)
-  if (appState.showConnections) {
-    investigationData.connections.forEach(conn => {
-      const source = investigationData.people.find(p => p.id === conn.source);
-      const target = investigationData.people.find(p => p.id === conn.target);
-      
-      // Only show connections if both nodes are in filtered view
-      if (source && target && filteredPeople.includes(source) && filteredPeople.includes(target)) {
-        const sourceGroup = peopleByGroup[source.group];
-        const targetGroup = peopleByGroup[target.group];
-        
-        const sourcePos = calculateConcentricPosition(source, sourceGroup.indexOf(source), sourceGroup);
-        const targetPos = calculateConcentricPosition(target, targetGroup.indexOf(target), targetGroup);
-        
-        const connection = document.createElement('div');
-        connection.className = 'connection';
-        
-        const dx = targetPos.x - sourcePos.x;
-        const dy = targetPos.y - sourcePos.y;
-        const length = Math.sqrt(dx * dx + dy * dy);
-        const angle = Math.atan2(dy, dx) * 180 / Math.PI;
-        
-        connection.style.width = length + 'px';
-        connection.style.left = sourcePos.x + 'px';
-        connection.style.top = sourcePos.y + 'px';
-        connection.style.transform = `rotate(${angle}deg)`;
-        connection.style.opacity = 0.3 + (conn.weight / 20);
-        connection.style.height = (conn.weight / 5) + 'px';
-        
-        container.appendChild(connection);
-      }
-    });
-  }
-
-  // Create nodes LAST (so they appear on top)
-  filteredPeople.forEach(person => {
-    const groupMembers = peopleByGroup[person.group] || [];
-    const position = calculateConcentricPosition(person, groupMembers.indexOf(person), groupMembers);
-    
-    const node = document.createElement('div');
-    node.className = 'node';
-    
-    // Size based on heat score (scaled by zoom)
-    const baseSize = 2 + person.heat * 4;
-    const size = baseSize * appState.zoomLevel;
-    node.style.width = size + 'px';
-    node.style.height = size + 'px';
-    
-    // Color based on heat score using the new color system
-    const heatColor = `var(--heat-${person.heat})`;
-    node.style.background = heatColor;
-    
-    node.style.left = position.x + 'px';
-    node.style.top = position.y + 'px';
-    node.dataset.id = person.id;
-    
-    // Create label
-    const label = document.createElement('div');
-    label.className = 'node-label';
-    label.textContent = `${person.name} (${person.heat}/10)`;
-    label.style.left = '50%';
-    label.style.top = (size/2 + 10) + 'px';
-    label.style.transform = 'translateX(-50%)';
-    label.style.fontSize = (11 * appState.zoomLevel) + 'px';
-    
-    if (appState.showLabels) {
-      label.style.opacity = '1';
-    }
-    
-    node.appendChild(label);
-    
-    // Simple click handler
-    node.addEventListener('click', function(e) {
-      e.stopPropagation();
-      const personId = parseInt(this.dataset.id);
-      showDossier(personId);
-      highlightNode(personId);
-    });
-    
-    // Highlight if selected
-    if (person.id === appState.selectedPerson) {
-      node.style.boxShadow = '0 0 0 3px #ff0000, 0 0 10px rgba(255, 0, 0, 0.3)';
-      node.style.zIndex = '40';
-    }
-    
-    container.appendChild(node);
-  });
-}
-
-function highlightNode(id) {
-  appState.selectedPerson = parseInt(id);
-  renderNetworkVisualization();
+  networkViz.updateData(filteredPeople, filteredConnections);
 }
 
 // DOSSIER SYSTEM
 function showDossier(personId) {
   const person = investigationData.people.find(p => p.id === personId);
+  if (!person) return;
+
   const connections = investigationData.connections.filter(conn => 
     conn.source === personId || conn.target === personId
   );
   
   let html = `
     <h3>${person.name}</h3>
-    <div class="heat-bar-visual">
-      <div class="heat-bar-fill" style="width: ${person.heat * 10}%; background: var(--heat-${person.heat});"></div>
-      <div class="heat-bar-empty"></div>
+    <div style="display: flex; align-items: center; gap: 8px; margin: 12px 0;">
       <span class="heat-score" style="background: var(--heat-${person.heat});">${person.heat}/10</span>
+      <span class="group-indicator group-${person.group}"></span>
+      <span style="font-size: 12px; color: var(--text-secondary);">${person.group.toUpperCase()}</span>
     </div>
-    <div class="role" style="margin-top: 8px;">${person.title}</div>
+    <div class="role">${person.title}</div>
     <div class="status">${person.status.toUpperCase()}</div>
     <p style="margin-top: 16px; font-size: 13px; line-height: 1.5;">${person.details}</p>
   `;
@@ -1011,9 +1030,10 @@ function showDossier(personId) {
       const otherId = conn.source === personId ? conn.target : conn.source;
       const otherPerson = investigationData.people.find(p => p.id === otherId);
       if (otherPerson) {
-        html += `<div class="person-item" onclick="showDossier(${otherId}); highlightNode('${otherId}')">
+        html += `<div class="person-item" onclick="showDossier(${otherId})" role="button" tabindex="0">
           <span class="group-indicator group-${otherPerson.group}"></span>
-          <strong>${otherPerson.name}</strong> <span class="heat-score" style="background: var(--heat-${otherPerson.heat});">${otherPerson.heat}/10</span>
+          <strong>${otherPerson.name}</strong> 
+          <span class="heat-score" style="background: var(--heat-${otherPerson.heat});">${otherPerson.heat}/10</span>
           <div class="role">${otherPerson.role}</div>
         </div>`;
       }
@@ -1021,7 +1041,7 @@ function showDossier(personId) {
   }
   
   document.getElementById('dossierContent').innerHTML = html;
-  highlightNode(personId);
+  appState.selectedPerson = personId;
 }
 
 // PEOPLE LIST
@@ -1029,14 +1049,14 @@ function renderPeopleList() {
   const peopleList = document.getElementById('peopleList');
   let html = '';
   
-  // Sort by heat score (highest first)
   const sortedPeople = [...investigationData.people].sort((a, b) => b.heat - a.heat);
   
   sortedPeople.forEach(person => {
     html += `
-      <div class="person-item" onclick="showDossier(${person.id}); highlightNode('${person.id}')">
+      <div class="person-item" onclick="showDossier(${person.id})" role="button" tabindex="0">
         <span class="group-indicator group-${person.group}"></span>
-        <strong>${person.name}</strong> <span class="heat-score" style="background: var(--heat-${person.heat});">${person.heat}/10</span>
+        <strong>${person.name}</strong> 
+        <span class="heat-score" style="background: var(--heat-${person.heat});">${person.heat}/10</span>
         <div class="role">${person.role}</div>
         <div class="status">${person.status}</div>
       </div>
@@ -1044,6 +1064,30 @@ function renderPeopleList() {
   });
   
   peopleList.innerHTML = html;
+}
+
+// MOBILE TABS
+function setupMobileTabs() {
+  const tabs = document.querySelectorAll('.mobile-tab');
+  const tabContents = document.querySelectorAll('.tab-content');
+  
+  tabs.forEach(tab => {
+    tab.addEventListener('click', function() {
+      const tabName = this.dataset.tab;
+      
+      // Update active tab
+      tabs.forEach(t => t.classList.remove('active'));
+      this.classList.add('active');
+      
+      // Show corresponding content
+      tabContents.forEach(content => {
+        content.classList.remove('active');
+        if (content.dataset.tabContent === tabName) {
+          content.classList.add('active');
+        }
+      });
+    });
+  });
 }
 
 // SEARCH FUNCTIONALITY
@@ -1062,28 +1106,24 @@ function setupSearch() {
 
 // FILTERS
 function setupFilters() {
-  // Group filters
   const groupFilters = document.querySelectorAll('.filter-option');
   groupFilters.forEach(filter => {
     filter.addEventListener('click', function() {
-      // Update active state
       groupFilters.forEach(f => f.classList.remove('active'));
       this.classList.add('active');
       
-      // Update filter
       appState.currentFilter = this.dataset.group;
-      renderNetworkVisualization();
+      updateVisualization();
     });
   });
   
-  // Heat slider
   const heatSlider = document.getElementById('heatSlider');
   const heatValue = document.getElementById('heatValue');
   
   heatSlider.addEventListener('input', function() {
     appState.minHeat = parseInt(this.value);
     heatValue.textContent = this.value;
-    renderNetworkVisualization();
+    updateVisualization();
   });
 }
 
@@ -1092,108 +1132,45 @@ function setupControls() {
   document.getElementById('resetView').addEventListener('click', function() {
     appState.selectedPerson = 0;
     appState.zoomLevel = 1.0;
-    appState.offsetX = 0;
-    appState.offsetY = 0;
-    renderNetworkVisualization();
+    updateVisualization();
     showDossier(0);
   });
   
   document.getElementById('toggleLabels').addEventListener('click', function() {
     appState.showLabels = !appState.showLabels;
     this.textContent = appState.showLabels ? 'Hide Labels' : 'Show Labels';
-    renderNetworkVisualization();
+    updateVisualization();
   });
   
   document.getElementById('toggleConnections').addEventListener('click', function() {
     appState.showConnections = !appState.showConnections;
     this.textContent = appState.showConnections ? 'Hide Connections' : 'Show Connections';
-    renderNetworkVisualization();
+    updateVisualization();
   });
 
-  // Zoom controls
-  document.getElementById('zoomIn').addEventListener('click', function() {
-    appState.zoomLevel = Math.min(appState.zoomLevel * 1.2, 3.0);
-    renderNetworkVisualization();
-  });
-
-  document.getElementById('zoomOut').addEventListener('click', function() {
-    appState.zoomLevel = Math.max(appState.zoomLevel / 1.2, 0.5);
-    renderNetworkVisualization();
-  });
-
-  // Add panning with mouse drag
-  let isDragging = false;
-  let lastX = 0;
-  let lastY = 0;
-
-  const visualization = document.getElementById('visualization');
-  
-  visualization.addEventListener('mousedown', function(e) {
-    if (e.target.classList.contains('node')) return;
-    isDragging = true;
-    lastX = e.clientX;
-    lastY = e.clientY;
-    visualization.style.cursor = 'grabbing';
-  });
-
-  document.addEventListener('mousemove', function(e) {
-    if (!isDragging) return;
-    
-    const deltaX = e.clientX - lastX;
-    const deltaY = e.clientY - lastY;
-    
-    appState.offsetX += deltaX;
-    appState.offsetY += deltaY;
-    
-    lastX = e.clientX;
-    lastY = e.clientY;
-    
-    renderNetworkVisualization();
-  });
-
-  document.addEventListener('mouseup', function() {
-    isDragging = false;
-    visualization.style.cursor = 'default';
+  // Mobile controls
+  document.querySelectorAll('.control-pill').forEach(btn => {
+    btn.addEventListener('click', function() {
+      const action = this.dataset.action;
+      switch(action) {
+        case 'filter':
+          document.querySelector('.mobile-tab[data-tab="timeline"]').click();
+          break;
+        case 'search':
+          document.querySelector('.mobile-tab[data-tab="people"]').click();
+          break;
+        case 'reset':
+          appState.selectedPerson = 0;
+          updateVisualization();
+          showDossier(0);
+          break;
+      }
+    });
   });
 }
-
-// COMMENTS SYSTEM
-function addComment() {
-  const input = document.getElementById('commentInput');
-  const text = input.value.trim();
-  
-  if (text) {
-    const commentsList = document.getElementById('commentsList');
-    const comment = document.createElement('div');
-    comment.className = 'comment';
-    comment.innerHTML = `<strong>Researcher</strong> • ${text}`;
-    commentsList.appendChild(comment);
-    input.value = '';
-    commentsList.scrollTop = commentsList.scrollHeight;
-  }
-}
-
-// Enter key for comments
-document.getElementById('commentInput').addEventListener('keypress', function(e) {
-  if (e.key === 'Enter' && !e.shiftKey) {
-    e.preventDefault();
-    addComment();
-  }
-});
 
 // Make functions globally available
 window.showDossier = showDossier;
-window.highlightNode = highlightNode;
-window.addComment = addComment;
-
-function toggleChart() {
-  const chart = document.getElementById('chart-container');
-  chart.style.display = chart.style.display === 'none' ? 'block' : 'none';
-  window.scrollTo({ top: chart.offsetTop, behavior: 'smooth' });
-}
-
 </script>
-<button class="show-chart-btn" onclick="toggleChart()">Show Interactive Map</button>
-
 </body>
 </html>

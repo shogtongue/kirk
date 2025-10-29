@@ -20,6 +20,16 @@
       --heat-8: #ffcdd2;   --heat-9: #ef9a9a;   --heat-10: #e57373;
     }
 
+    /* Dark mode variables */
+    [data-theme="dark"] {
+      --bg-primary: #1a1a1a;
+      --bg-secondary: #2d2d2d;
+      --text-primary: #ffffff;
+      --text-secondary: #a0a0a0;
+      --border-color: #404040;
+      --accent-color: #ffffff;
+    }
+
     /* Reset and base styles */
     * {
       box-sizing: border-box;
@@ -32,6 +42,7 @@
       font-family: 'Inter', sans-serif;
       overflow: hidden;
       color: var(--text-primary);
+      transition: background-color 0.3s ease, color 0.3s ease;
     }
 
     /* Start Screen */
@@ -41,7 +52,7 @@
       left: 0;
       width: 100%;
       height: 100%;
-      background: #ffffff;
+      background: var(--bg-primary);
       display: flex;
       flex-direction: column;
       justify-content: center;
@@ -53,12 +64,12 @@
     #startCircle {
       width: 120px;
       height: 120px;
-      border: 3px solid #000000;
+      border: 3px solid var(--accent-color);
       border-radius: 50%;
       display: flex;
       justify-content: center;
       align-items: center;
-      color: #000000;
+      color: var(--text-primary);
       font-size: 14px;
       font-weight: 500;
       text-align: center;
@@ -87,6 +98,7 @@
       padding: 16px;
       overflow: auto;
       border: 1px solid var(--border-color);
+      transition: background-color 0.3s ease, border-color 0.3s ease;
     }
 
     #header { 
@@ -96,6 +108,41 @@
       gap: 12px;
       padding: 12px 16px;
       min-height: auto;
+    }
+
+    .header-controls {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    /* Round glowing theme toggle */
+    .theme-toggle {
+      background: var(--bg-secondary);
+      border: 2px solid var(--accent-color);
+      border-radius: 50%;
+      width: 44px;
+      height: 44px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      transition: all 0.3s ease;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+
+    .theme-toggle:hover {
+      box-shadow: 0 0 20px var(--accent-color);
+      transform: scale(1.1);
+    }
+
+    [data-theme="dark"] .theme-toggle {
+      box-shadow: 0 0 15px rgba(255,255,255,0.2);
+    }
+
+    [data-theme="dark"] .theme-toggle:hover {
+      box-shadow: 0 0 25px rgba(255,255,255,0.4);
     }
 
     #mobileTabs {
@@ -114,11 +161,12 @@
       font-weight: 500;
       cursor: pointer;
       transition: all 0.2s ease;
+      color: var(--text-primary);
     }
 
     .mobile-tab.active {
       background: var(--bg-primary);
-      border-bottom: 2px solid #000000;
+      border-bottom: 2px solid var(--accent-color);
     }
 
     .tab-content {
@@ -138,9 +186,10 @@
         grid-template-areas: 
           "header header"
           "left center"
-          "bottom right";
-        grid-template-columns: 300px 1fr;
-        grid-template-rows: 80px 1fr 200px;
+          "left right";
+        grid-template-columns: 350px 1fr;
+        grid-template-rows: 60px 1fr;
+        height: 100vh;
       }
 
       #header { 
@@ -151,10 +200,18 @@
         padding: 0 24px;
       }
 
-      #leftPanel { grid-area: left; }
-      #centerPanel { grid-area: center; }
-      #rightPanel { grid-area: right; }
-      #bottomPanel { grid-area: bottom; }
+      #leftPanel { 
+        grid-area: left; 
+        display: block !important;
+      }
+      #centerPanel { 
+        grid-area: center; 
+        display: block !important;
+      }
+      #rightPanel { 
+        grid-area: right; 
+        display: block !important;
+      }
 
       #mobileTabs {
         display: none;
@@ -163,6 +220,10 @@
       .tab-content {
         display: block !important;
       }
+
+      #bottomPanel {
+        display: none;
+      }
     }
 
     /* Desktop Layout */
@@ -170,17 +231,16 @@
       #app {
         grid-template-areas: 
           "header header header"
-          "left center right"
-          "bottom bottom bottom";
+          "left center right";
         grid-template-columns: 350px 1fr 400px;
-        grid-template-rows: 60px 1fr 250px;
+        grid-template-rows: 60px 1fr;
       }
     }
 
     /* Visualization */
     #visualizationContainer {
       width: 100%;
-      height: 100%;
+      height: calc(100% - 70px); /* Make space for controls below */
       position: relative;
       background: var(--bg-primary);
     }
@@ -222,21 +282,27 @@
       gap: 6px;
       box-shadow: 0 2px 8px rgba(0,0,0,0.15);
       transition: all 0.2s ease;
+      color: var(--text-primary);
+    }
+
+    [data-theme="dark"] .control-pill {
+      background: rgba(45, 45, 45, 0.95);
     }
 
     .control-pill:hover {
-      background: #ffffff;
+      background: var(--bg-primary);
       box-shadow: 0 4px 12px rgba(0,0,0,0.2);
     }
 
-    /* Desktop Controls */
+    /* Desktop Controls - POSITIONED BELOW THE GRID */
     .controls {
-      position: absolute;
-      bottom: 20px;
-      left: 20px;
+      position: static;
       display: none;
       gap: 10px;
       z-index: 100;
+      justify-content: center;
+      margin-top: 15px;
+      padding: 10px;
     }
 
     @media (min-width: 768px) {
@@ -250,19 +316,20 @@
     }
 
     .control-btn {
-      background: rgba(255, 255, 255, 0.9);
+      background: var(--bg-primary);
       border: 1px solid var(--border-color);
       color: var(--text-primary);
-      padding: 8px 12px;
-      border-radius: 4px;
+      padding: 8px 16px;
+      border-radius: 6px;
       cursor: pointer;
       font-size: 12px;
       font-weight: 500;
+      transition: all 0.2s ease;
     }
 
     .control-btn:hover {
-      background: #ffffff;
-      border-color: #000000;
+      background: var(--bg-secondary);
+      border-color: var(--accent-color);
     }
 
     /* Common Components */
@@ -286,6 +353,7 @@
       color: var(--text-primary);
       font-family: 'Inter', sans-serif;
       font-size: 14px;
+      transition: all 0.2s ease;
     }
 
     @media (min-width: 768px) {
@@ -300,7 +368,7 @@
 
     .search-box:focus {
       outline: none;
-      border-color: #000000;
+      border-color: var(--accent-color);
     }
 
     /* Person Items */
@@ -315,29 +383,14 @@
     }
 
     .person-item:hover {
-      border-color: #000000;
+      border-color: var(--accent-color);
       transform: translateX(4px);
-    }
-
-    .person-card {
-      padding: 16px;
-      margin: 12px 0;
-      border: 1px solid var(--border-color);
-      border-radius: 8px;
-      background: var(--bg-primary);
-    }
-
-    .card-header {
-      display: flex;
-      align-items: flex-start;
-      justify-content: between;
-      margin-bottom: 8px;
     }
 
     .heat-score {
       display: inline-block;
-      background: #000000;
-      color: #ffffff;
+      background: var(--accent-color);
+      color: var(--bg-primary);
       padding: 2px 6px;
       font-size: 10px;
       margin-left: 8px;
@@ -362,7 +415,7 @@
     .timeline-event {
       padding: 12px;
       margin: 8px 0;
-      border-left: 3px solid #000000;
+      border-left: 3px solid var(--accent-color);
       background: var(--bg-primary);
       border-radius: 0 6px 6px 0;
       cursor: pointer;
@@ -370,7 +423,7 @@
     }
 
     .timeline-event:hover {
-      background: #f0f0f0;
+      background: var(--bg-secondary);
     }
 
     .timeline-date {
@@ -417,11 +470,12 @@
       font-size: 12px;
       cursor: pointer;
       transition: all 0.2s ease;
+      color: var(--text-primary);
     }
 
     .filter-option.active {
-      background: #000000;
-      color: #ffffff;
+      background: var(--accent-color);
+      color: var(--bg-primary);
     }
 
     .heat-slider {
@@ -438,14 +492,14 @@
       margin-right: 6px;
     }
 
-    .group-victim { background: #000000; }
-    .group-family { background: #333333; }
-    .group-security { background: #444444; }
-    .group-tpusa { background: #888888; }
-    .group-event { background: #aaaaaa; }
-    .group-network { background: #cccccc; }
-    .group-suspect { background: #222222; }
-    .group-investigators { background: #666666; }
+    .group-victim { background: var(--accent-color); }
+    .group-family { background: #666666; }
+    .group-security { background: #888888; }
+    .group-tpusa { background: #aaaaaa; }
+    .group-event { background: #cccccc; }
+    .group-network { background: #dddddd; }
+    .group-suspect { background: #777777; }
+    .group-investigators { background: #999999; }
 
     .header-subtitle {
       font-size: 12px;
@@ -485,27 +539,11 @@
       text-decoration: underline;
     }
 
-    /* Loading States */
-    .loading {
-      opacity: 0.6;
-      pointer-events: none;
-    }
-
-    .loading::after {
-      content: 'Loading...';
-      display: block;
-      text-align: center;
-      padding: 20px;
-    }
-
-    /* Error States */
-    .error {
-      background: #ffebee;
-      border: 1px solid #f44336;
-      color: #c62828;
-      padding: 12px;
-      border-radius: 6px;
-      margin: 8px 0;
+    /* Hide map tab on mobile */
+    @media (max-width: 767px) {
+      .mobile-tab[data-tab="map"] {
+        display: none;
+      }
     }
   </style>
 </head>
@@ -513,7 +551,7 @@
   <!-- START SCREEN -->
   <div id="startScreen">
     <div id="startCircle">FOR CHARLIE</div>
-    <div style="font-size: 14px; color: #666; font-weight: 500;">Click to begin investigation</div>
+    <div style="font-size: 14px; color: var(--text-secondary); font-weight: 500;">Click to begin investigation</div>
   </div>
 
   <!-- MAIN DASHBOARD -->
@@ -527,14 +565,19 @@
           • Additional Research by <a href="https://x.com/Piper_truth1" class="header-link" target="_blank" rel="noopener noreferrer">@Piper_truth1</a>
         </div>
       </div>
-      <input type="text" class="search-box" placeholder="Search people and events..." id="searchBox" aria-label="Search investigation data">
+      <div class="header-controls">
+        <input type="text" class="search-box" placeholder="Search people and events..." id="searchBox" aria-label="Search investigation data">
+        <button class="theme-toggle" id="themeToggle" aria-label="Toggle dark mode">
+          <span class="theme-icon">🌙</span>
+        </button>
+      </div>
     </div>
 
     <!-- MOBILE TABS -->
     <div id="mobileTabs">
-      <button class="mobile-tab active" data-tab="map">Map</button>
       <button class="mobile-tab" data-tab="people">People</button>
-      <button class="mobile-tab" data-tab="timeline">Timeline</button>
+      <button class="mobile-tab active" data-tab="timeline">Timeline</button>
+      <!-- Map tab removed on mobile -->
     </div>
 
     <!-- LEFT PANEL -->
@@ -625,13 +668,13 @@
     </div>
 
     <!-- CENTER PANEL - NETWORK VISUALIZATION -->
-    <div id="centerPanel" class="panel tab-content active" data-tab-content="map">
+    <div id="centerPanel" class="panel tab-content" data-tab-content="map">
       <div id="visualizationContainer">
         <canvas id="networkCanvas"></canvas>
         <div class="canvas-overlay" id="canvasOverlay"></div>
       </div>
       
-      <!-- Desktop Controls -->
+      <!-- Desktop Controls - NOW BELOW THE GRID -->
       <div class="controls">
         <button class="control-btn" id="resetView">Reset View</button>
         <button class="control-btn" id="toggleLabels">Show Labels</button>
@@ -668,7 +711,7 @@
       </div>
     </div>
 
-    <!-- BOTTOM PANEL - REMOVED INVESTIGATOR NOTES -->
+    <!-- BOTTOM PANEL - REMOVED -->
     <div id="bottomPanel" class="panel" style="display: none;">
       <!-- Investigator notes removed as requested -->
     </div>
@@ -777,6 +820,40 @@ let appState = {
 };
 
 let networkViz;
+
+// THEME TOGGLE FUNCTIONALITY
+function setupThemeToggle() {
+  const themeToggle = document.getElementById('themeToggle');
+  const themeIcon = themeToggle.querySelector('.theme-icon');
+  
+  // Check for saved theme or prefer-color-scheme
+  const savedTheme = localStorage.getItem('theme');
+  const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+  
+  if (savedTheme === 'dark' || (!savedTheme && prefersDark)) {
+    document.documentElement.setAttribute('data-theme', 'dark');
+    themeIcon.textContent = '☀️';
+  }
+  
+  themeToggle.addEventListener('click', function() {
+    const currentTheme = document.documentElement.getAttribute('data-theme');
+    
+    if (currentTheme === 'dark') {
+      document.documentElement.removeAttribute('data-theme');
+      themeIcon.textContent = '🌙';
+      localStorage.setItem('theme', 'light');
+    } else {
+      document.documentElement.setAttribute('data-theme', 'dark');
+      themeIcon.textContent = '☀️';
+      localStorage.setItem('theme', 'dark');
+    }
+    
+    // Update visualization colors if needed
+    if (networkViz) {
+      networkViz.render();
+    }
+  });
+}
 
 // CANVAS-BASED VISUALIZATION
 class NetworkVisualization {
@@ -984,8 +1061,13 @@ function initializeDashboard() {
   setupFilters();
   setupControls();
   setupMobileTabs();
+  setupThemeToggle(); // ADD THEME TOGGLE
   showDossier(0);
-  updateVisualization();
+  
+  // Only show visualization on desktop/tablet
+  if (window.innerWidth >= 768) {
+    updateVisualization();
+  }
 }
 
 function updateVisualization() {
@@ -1113,7 +1195,9 @@ function setupFilters() {
       this.classList.add('active');
       
       appState.currentFilter = this.dataset.group;
-      updateVisualization();
+      if (window.innerWidth >= 768) {
+        updateVisualization();
+      }
     });
   });
   
@@ -1123,7 +1207,9 @@ function setupFilters() {
   heatSlider.addEventListener('input', function() {
     appState.minHeat = parseInt(this.value);
     heatValue.textContent = this.value;
-    updateVisualization();
+    if (window.innerWidth >= 768) {
+      updateVisualization();
+    }
   });
 }
 
@@ -1132,20 +1218,26 @@ function setupControls() {
   document.getElementById('resetView').addEventListener('click', function() {
     appState.selectedPerson = 0;
     appState.zoomLevel = 1.0;
-    updateVisualization();
+    if (window.innerWidth >= 768) {
+      updateVisualization();
+    }
     showDossier(0);
   });
   
   document.getElementById('toggleLabels').addEventListener('click', function() {
     appState.showLabels = !appState.showLabels;
     this.textContent = appState.showLabels ? 'Hide Labels' : 'Show Labels';
-    updateVisualization();
+    if (window.innerWidth >= 768) {
+      updateVisualization();
+    }
   });
   
   document.getElementById('toggleConnections').addEventListener('click', function() {
     appState.showConnections = !appState.showConnections;
     this.textContent = appState.showConnections ? 'Hide Connections' : 'Show Connections';
-    updateVisualization();
+    if (window.innerWidth >= 768) {
+      updateVisualization();
+    }
   });
 
   // Mobile controls
@@ -1161,7 +1253,9 @@ function setupControls() {
           break;
         case 'reset':
           appState.selectedPerson = 0;
-          updateVisualization();
+          if (window.innerWidth >= 768) {
+            updateVisualization();
+          }
           showDossier(0);
           break;
       }

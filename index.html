@@ -25,6 +25,7 @@
       margin: 0;
       background: var(--bg-primary);
       font-family: 'Inter', sans-serif;
+      overflow: auto;
       color: var(--text-primary);
       transition: all 0.3s ease;
     }
@@ -67,85 +68,35 @@
       100% { transform: scale(1); opacity: 1; }
     }
 
-    /* Responsive grid layout */
     #app {
       display: grid;
-      grid-template-columns: 1fr;
-      grid-template-rows: auto auto 1fr auto;
+      grid-template-columns: 350px 1fr 400px;
+      grid-template-rows: 60px 1fr 250px;
       height: 100vh;
       opacity: 0;
       transition: opacity 1s ease;
     }
 
-    /* Mobile-first layout */
     .panel {
       background: var(--bg-secondary);
-      padding: 16px;
+      padding: 24px;
       overflow: auto;
       border: 1px solid var(--border-color);
     }
 
     #header { 
+      grid-column: 1 / span 3; 
       grid-row: 1; 
       background: var(--bg-primary); 
       display: flex; 
-      flex-direction: column;
       justify-content: space-between; 
-      align-items: flex-start;
-      padding: 12px 16px;
-      gap: 12px;
+      align-items: center; 
+      padding: 0 24px;
     }
-    
-    #leftPanel { grid-row: 2; }
-    #centerPanel { grid-row: 3; background: var(--bg-primary); }
-    #rightPanel { grid-row: 4; }
-    #bottomPanel { grid-row: 5; }
-
-    /* Tablet layout */
-    @media (min-width: 768px) {
-      #app {
-        grid-template-columns: 300px 1fr;
-        grid-template-rows: 60px 1fr 200px;
-      }
-      
-      #header { 
-        grid-column: 1 / span 2; 
-        grid-row: 1; 
-        flex-direction: row;
-        align-items: center;
-        padding: 0 24px;
-      }
-      
-      #leftPanel { grid-column: 1; grid-row: 2 / span 2; }
-      #centerPanel { grid-column: 2; grid-row: 2; }
-      #rightPanel { grid-column: 2; grid-row: 3; }
-      #bottomPanel { display: none; } /* Hide bottom panel on tablet+ */
-      
-      .panel {
-        padding: 20px;
-      }
-    }
-
-    /* Desktop layout */
-    @media (min-width: 1024px) {
-      #app {
-        grid-template-columns: 350px 1fr 400px;
-        grid-template-rows: 60px 1fr 250px;
-      }
-      
-      #header { grid-column: 1 / span 3; }
-      #leftPanel { grid-column: 1; grid-row: 2 / span 2; }
-      #centerPanel { grid-column: 2; grid-row: 2; }
-      #rightPanel { grid-column: 3; grid-row: 2 / span 2; }
-      #bottomPanel { grid-column: 2; grid-row: 3; display: block; }
-    }
-
-    /* Large desktop layout */
-    @media (min-width: 1440px) {
-      #app {
-        grid-template-columns: 400px 1fr 450px;
-      }
-    }
+    #leftPanel { grid-column: 1; grid-row: 2 / span 2; }
+    #centerPanel { grid-column: 2; grid-row: 2; position: relative; background: var(--bg-primary); }
+    #rightPanel { grid-column: 3; grid-row: 2 / span 2; }
+    #bottomPanel { grid-column: 2; grid-row: 3; }
 
     #visualization {
       width: 100%;
@@ -208,48 +159,20 @@
       font-weight: 600;
     }
 
-    h1 { 
-      font-size: 20px; 
-      margin-bottom: 8px;
-    }
-    
-    h2 { 
-      font-size: 18px; 
-      margin-bottom: 16px; 
-    }
-    
-    h3 { 
-      font-size: 16px; 
-      margin-bottom: 12px; 
-    }
-    
-    h4 { 
-      font-size: 14px; 
-      margin-bottom: 8px; 
-    }
-
-    /* Responsive typography */
-    @media (min-width: 768px) {
-      h1 { font-size: 24px; }
-    }
+    h1 { font-size: 24px; }
+    h2 { font-size: 18px; margin-bottom: 20px; }
+    h3 { font-size: 16px; margin-bottom: 12px; }
+    h4 { font-size: 14px; margin-bottom: 8px; }
 
     .search-box {
-      width: 100%;
-      padding: 10px 14px;
+      width: 300px;
+      padding: 12px 16px;
       background: var(--bg-secondary);
       border: 1px solid var(--border-color);
       border-radius: 8px;
       color: var(--text-primary);
       font-family: 'Inter', sans-serif;
       font-size: 14px;
-      box-sizing: border-box;
-    }
-
-    @media (min-width: 768px) {
-      .search-box {
-        width: 300px;
-        padding: 12px 16px;
-      }
     }
 
     .search-box:focus {
@@ -349,7 +272,6 @@
       font-size: 13px;
       resize: vertical;
       min-height: 80px;
-      box-sizing: border-box;
     }
 
     button {
@@ -420,40 +342,22 @@
 
     .controls {
       position: absolute;
-      bottom: 10px;
-      left: 10px;
+      bottom: 20px;
+      left: 20px;
       display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
+      gap: 10px;
       z-index: 100;
-      max-width: calc(100% - 20px);
-    }
-
-    @media (min-width: 768px) {
-      .controls {
-        bottom: 20px;
-        left: 20px;
-        gap: 10px;
-      }
     }
 
     .control-btn {
       background: rgba(255, 255, 255, 0.9);
       border: 1px solid var(--border-color);
       color: var(--text-primary);
-      padding: 6px 10px;
+      padding: 8px 12px;
       border-radius: 4px;
       cursor: pointer;
-      font-size: 11px;
+      font-size: 12px;
       font-weight: 500;
-      white-space: nowrap;
-    }
-
-    @media (min-width: 768px) {
-      .control-btn {
-        padding: 8px 12px;
-        font-size: 12px;
-      }
     }
 
     .control-btn:hover {
@@ -509,16 +413,10 @@
     .group-investigators { background: #666666; }
 
     .header-subtitle {
-      font-size: 12px;
+      font-size: 14px;
       font-weight: 500;
       color: var(--text-secondary);
-    }
-
-    @media (min-width: 768px) {
-      .header-subtitle {
-        font-size: 14px;
-        margin-left: 10px;
-      }
+      margin-left: 10px;
     }
 
     .header-link {
@@ -564,28 +462,23 @@
       left: 0;
     }
 
-    /* Mobile-specific adjustments */
-    @media (max-width: 767px) {
-      #timeline {
-        max-height: 200px;
-        overflow-y: auto;
-      }
-      
-      #peopleList {
-        max-height: 200px;
-        overflow-y: auto;
-      }
-      
-      #dossierContent {
-        max-height: 200px;
-        overflow-y: auto;
-      }
-      
-      #commentsList {
-        max-height: 150px;
-        overflow-y: auto;
-      }
-    }
+    /* Responsive layout for smaller screens */
+@media (max-width: 768px) {
+  .dashboard {
+    flex-direction: column;
+    padding: 20px;
+  }
+
+  .card {
+    width: 100%;
+    margin-bottom: 20px;
+  }
+
+  h1 {
+    font-size: 1.5rem;
+  }
+}
+
   </style>
 </head>
 <body>
@@ -599,7 +492,7 @@
   <div id="app">
     <!-- HEADER -->
     <div id="header" class="panel">
-      <div style="display: flex; align-items: center; flex-wrap: wrap;">
+      <div style="display: flex; align-items: center;">
         <h1>CHARLIE KIRK INVESTIGATION</h1>
         <div class="header-subtitle">
           • Research by <a href="https://x.com/shogtongue" class="header-link" target="_blank">@shogtongue</a>
@@ -1271,11 +1164,6 @@ document.getElementById('commentInput').addEventListener('keypress', function(e)
     e.preventDefault();
     addComment();
   }
-});
-
-// Handle window resize
-window.addEventListener('resize', function() {
-  renderNetworkVisualization();
 });
 
 // Make functions globally available

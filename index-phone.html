@@ -1,0 +1,1287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Charlie Kirk Investigation</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+    
+    :root {
+      --bg-primary: #ffffff;
+      --bg-secondary: #f8f8f8;
+      --text-primary: #000000;
+      --text-secondary: #666666;
+      --border-color: #e0e0e0;
+      --accent-color: #000000;
+      /* Heat color system */
+      --heat-1: #e8f5e8;   --heat-2: #c8e6c9;   --heat-3: #a5d6a7;   --heat-4: #81c784;   /* Green range */
+      --heat-5: #fff9c4;   --heat-6: #fff176;   --heat-7: #ffeb3b;   /* Yellow range */
+      --heat-8: #ffcdd2;   --heat-9: #ef9a9a;   --heat-10: #e57373;  /* Red range */
+    }
+
+    html, body {
+      height: 100%;
+      margin: 0;
+      background: var(--bg-primary);
+      font-family: 'Inter', sans-serif;
+      color: var(--text-primary);
+      transition: all 0.3s ease;
+    }
+
+    #startScreen {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: #ffffff;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+      cursor: pointer;
+    }
+
+    #startCircle {
+      width: 120px;
+      height: 120px;
+      border: 3px solid #000000;
+      border-radius: 50%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color: #000000;
+      font-size: 14px;
+      font-weight: 500;
+      text-align: center;
+      padding: 20px;
+      animation: pulse 2s infinite;
+      margin-bottom: 20px;
+    }
+
+    @keyframes pulse {
+      0% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(1.05); opacity: 0.8; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+
+    /* Responsive grid layout */
+    #app {
+      display: grid;
+      grid-template-columns: 1fr;
+      grid-template-rows: auto auto 1fr auto;
+      height: 100vh;
+      opacity: 0;
+      transition: opacity 1s ease;
+    }
+
+    /* Mobile-first layout */
+    .panel {
+      background: var(--bg-secondary);
+      padding: 16px;
+      overflow: auto;
+      border: 1px solid var(--border-color);
+    }
+
+    #header { 
+      grid-row: 1; 
+      background: var(--bg-primary); 
+      display: flex; 
+      flex-direction: column;
+      justify-content: space-between; 
+      align-items: flex-start;
+      padding: 12px 16px;
+      gap: 12px;
+    }
+    
+    #leftPanel { grid-row: 2; }
+    #centerPanel { grid-row: 3; background: var(--bg-primary); }
+    #rightPanel { grid-row: 4; }
+    #bottomPanel { grid-row: 5; }
+
+    /* Tablet layout */
+    @media (min-width: 768px) {
+      #app {
+        grid-template-columns: 300px 1fr;
+        grid-template-rows: 60px 1fr 200px;
+      }
+      
+      #header { 
+        grid-column: 1 / span 2; 
+        grid-row: 1; 
+        flex-direction: row;
+        align-items: center;
+        padding: 0 24px;
+      }
+      
+      #leftPanel { grid-column: 1; grid-row: 2 / span 2; }
+      #centerPanel { grid-column: 2; grid-row: 2; }
+      #rightPanel { grid-column: 2; grid-row: 3; }
+      #bottomPanel { display: none; } /* Hide bottom panel on tablet+ */
+      
+      .panel {
+        padding: 20px;
+      }
+    }
+
+    /* Desktop layout */
+    @media (min-width: 1024px) {
+      #app {
+        grid-template-columns: 350px 1fr 400px;
+        grid-template-rows: 60px 1fr 250px;
+      }
+      
+      #header { grid-column: 1 / span 3; }
+      #leftPanel { grid-column: 1; grid-row: 2 / span 2; }
+      #centerPanel { grid-column: 2; grid-row: 2; }
+      #rightPanel { grid-column: 3; grid-row: 2 / span 2; }
+      #bottomPanel { grid-column: 2; grid-row: 3; display: block; }
+    }
+
+    /* Large desktop layout */
+    @media (min-width: 1440px) {
+      #app {
+        grid-template-columns: 400px 1fr 450px;
+      }
+    }
+
+    #visualization {
+      width: 100%;
+      height: 100%;
+      background: var(--bg-primary);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .node {
+      position: absolute;
+      border-radius: 50%;
+      transform: translate(-50%, -50%);
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      z-index: 10;
+      border: 2px solid rgba(0,0,0,0.1);
+    }
+
+    .node:hover {
+      transform: translate(-50%, -50%) scale(1.2);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+      z-index: 30;
+    }
+
+    .node-label {
+      position: absolute;
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--text-primary);
+      background: var(--bg-primary);
+      padding: 4px 8px;
+      border: 1px solid var(--border-color);
+      border-radius: 3px;
+      white-space: nowrap;
+      pointer-events: none;
+      z-index: 20;
+      opacity: 0;
+      transition: opacity 0.2s ease;
+    }
+
+    .node:hover .node-label {
+      opacity: 1;
+    }
+
+    .connection {
+      position: absolute;
+      height: 1px;
+      background: #cccccc;
+      transform-origin: 0 0;
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    h1, h2, h3, h4 {
+      font-family: 'Inter', sans-serif;
+      margin: 0 0 16px 0;
+      color: var(--text-primary);
+      font-weight: 600;
+    }
+
+    h1 { 
+      font-size: 20px; 
+      margin-bottom: 8px;
+    }
+    
+    h2 { 
+      font-size: 18px; 
+      margin-bottom: 16px; 
+    }
+    
+    h3 { 
+      font-size: 16px; 
+      margin-bottom: 12px; 
+    }
+    
+    h4 { 
+      font-size: 14px; 
+      margin-bottom: 8px; 
+    }
+
+    /* Responsive typography */
+    @media (min-width: 768px) {
+      h1 { font-size: 24px; }
+    }
+
+    .search-box {
+      width: 100%;
+      padding: 10px 14px;
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      color: var(--text-primary);
+      font-family: 'Inter', sans-serif;
+      font-size: 14px;
+      box-sizing: border-box;
+    }
+
+    @media (min-width: 768px) {
+      .search-box {
+        width: 300px;
+        padding: 12px 16px;
+      }
+    }
+
+    .search-box:focus {
+      outline: none;
+      border-color: #000000;
+    }
+
+    .person-item {
+      padding: 12px;
+      margin: 8px 0;
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      background: var(--bg-primary);
+    }
+
+    .person-item:hover {
+      border-color: #000000;
+      transform: translateX(4px);
+    }
+
+    .heat-bar {
+      display: inline-block;
+      background: #000000;
+      height: 4px;
+      margin-left: 8px;
+      vertical-align: middle;
+      border-radius: 2px;
+    }
+
+    .heat-score {
+      display: inline-block;
+      background: #000000;
+      color: #ffffff;
+      padding: 2px 6px;
+      font-size: 10px;
+      margin-left: 8px;
+      font-weight: 600;
+      border-radius: 3px;
+    }
+
+    .timeline-event {
+      padding: 12px;
+      margin: 8px 0;
+      border-left: 3px solid #000000;
+      background: var(--bg-primary);
+      border-radius: 0 6px 6px 0;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .timeline-event:hover {
+      background: #f0f0f0;
+    }
+
+    .timeline-date {
+      font-weight: 600;
+      font-size: 13px;
+      margin-bottom: 4px;
+    }
+
+    .timeline-desc {
+      font-size: 13px;
+      color: var(--text-secondary);
+      line-height: 1.4;
+    }
+
+    .x-link {
+      color: var(--text-secondary);
+      text-decoration: none;
+      font-size: 11px;
+      margin-top: 4px;
+      display: block;
+    }
+
+    .x-link:hover {
+      text-decoration: underline;
+    }
+
+    .comment {
+      padding: 12px;
+      margin: 8px 0;
+      border: 1px solid var(--border-color);
+      background: var(--bg-primary);
+      border-radius: 6px;
+    }
+
+    textarea {
+      width: 100%;
+      padding: 12px;
+      background: var(--bg-primary);
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      color: var(--text-primary);
+      font-family: 'Inter', sans-serif;
+      font-size: 13px;
+      resize: vertical;
+      min-height: 80px;
+      box-sizing: border-box;
+    }
+
+    button {
+      background: #000000;
+      border: none;
+      color: #ffffff;
+      padding: 10px 20px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-family: 'Inter', sans-serif;
+      font-size: 13px;
+      font-weight: 500;
+      transition: all 0.2s ease;
+    }
+
+    button:hover {
+      background: #333333;
+    }
+
+    .role {
+      font-size: 12px;
+      color: var(--text-secondary);
+      margin-top: 4px;
+    }
+
+    .status {
+      font-size: 11px;
+      color: var(--text-secondary);
+      margin-top: 2px;
+      font-weight: 500;
+    }
+
+    .credits {
+      margin-top: 30px;
+      padding-top: 20px;
+      border-top: 1px solid var(--border-color);
+    }
+
+    .credit-link {
+      color: var(--text-primary);
+      text-decoration: none;
+      font-weight: 500;
+    }
+
+    .credit-link:hover {
+      text-decoration: underline;
+    }
+
+    .heat-bar-visual {
+      display: flex;
+      align-items: center;
+      margin: 8px 0;
+    }
+
+    .heat-bar-fill {
+      height: 6px;
+      background: #000000;
+      border-radius: 3px;
+      margin-right: 8px;
+    }
+
+    .heat-bar-empty {
+      height: 6px;
+      background: #e0e0e0;
+      border-radius: 3px;
+      flex: 1;
+    }
+
+    .controls {
+      position: absolute;
+      bottom: 10px;
+      left: 10px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      z-index: 100;
+      max-width: calc(100% - 20px);
+    }
+
+    @media (min-width: 768px) {
+      .controls {
+        bottom: 20px;
+        left: 20px;
+        gap: 10px;
+      }
+    }
+
+    .control-btn {
+      background: rgba(255, 255, 255, 0.9);
+      border: 1px solid var(--border-color);
+      color: var(--text-primary);
+      padding: 6px 10px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 11px;
+      font-weight: 500;
+      white-space: nowrap;
+    }
+
+    @media (min-width: 768px) {
+      .control-btn {
+        padding: 8px 12px;
+        font-size: 12px;
+      }
+    }
+
+    .control-btn:hover {
+      background: #ffffff;
+      border-color: #000000;
+    }
+
+    .filter-section {
+      margin: 20px 0;
+    }
+
+    .filter-options {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 8px;
+    }
+
+    .filter-option {
+      background: var(--bg-primary);
+      border: 1px solid var(--border-color);
+      padding: 6px 12px;
+      border-radius: 4px;
+      font-size: 12px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .filter-option.active {
+      background: #000000;
+      color: #ffffff;
+    }
+
+    .heat-slider {
+      width: 100%;
+      margin: 10px 0;
+    }
+
+    .group-indicator {
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      margin-right: 6px;
+    }
+
+    .group-victim { background: #000000; }
+    .group-security { background: #444444; }
+    .group-tpusa { background: #888888; }
+    .group-event { background: #aaaaaa; }
+    .group-network { background: #cccccc; }
+    .group-suspect { background: #222222; }
+    .group-investigators { background: #666666; }
+
+    .header-subtitle {
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--text-secondary);
+    }
+
+    @media (min-width: 768px) {
+      .header-subtitle {
+        font-size: 14px;
+        margin-left: 10px;
+      }
+    }
+
+    .header-link {
+      color: var(--text-primary);
+      text-decoration: none;
+    }
+
+    .header-link:hover {
+      text-decoration: underline;
+    }
+
+    .concentric-circle {
+      position: absolute;
+      border-radius: 50%;
+      border: 1px dashed rgba(0,0,0,0.1);
+      transform: translate(-50%, -50%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .circle-label {
+      position: absolute;
+      font-size: 10px;
+      color: var(--text-secondary);
+      background: rgba(255,255,255,0.8);
+      padding: 2px 6px;
+      border-radius: 3px;
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    /* New styles for scalable visualization */
+    #visualizationContainer {
+      width: 100%;
+      height: 100%;
+      position: relative;
+      overflow: auto;
+    }
+
+    #networkCanvas {
+      position: absolute;
+      top: 0;
+      left: 0;
+    }
+
+    /* Mobile-specific adjustments */
+    @media (max-width: 767px) {
+      #timeline {
+        max-height: 200px;
+        overflow-y: auto;
+      }
+      
+      #peopleList {
+        max-height: 200px;
+        overflow-y: auto;
+      }
+      
+      #dossierContent {
+        max-height: 200px;
+        overflow-y: auto;
+      }
+      
+      #commentsList {
+        max-height: 150px;
+        overflow-y: auto;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- START SCREEN -->
+  <div id="startScreen">
+    <div id="startCircle">FOR CHARLIE</div>
+    <div style="font-size: 14px; color: #666; font-weight: 500;">Click to begin investigation</div>
+  </div>
+
+  <!-- MAIN DASHBOARD -->
+  <div id="app">
+    <!-- HEADER -->
+    <div id="header" class="panel">
+      <div style="display: flex; align-items: center; flex-wrap: wrap;">
+        <h1>CHARLIE KIRK INVESTIGATION</h1>
+        <div class="header-subtitle">
+          • Research by <a href="https://x.com/shogtongue" class="header-link" target="_blank">@shogtongue</a>
+          • Additional Research by <a href="https://x.com/Piper_truth1" class="header-link" target="_blank">@Piper_truth1</a>
+        </div>
+      </div>
+      <input type="text" class="search-box" placeholder="Search people and events..." id="searchBox">
+    </div>
+
+    <!-- LEFT PANEL -->
+    <div id="leftPanel" class="panel">
+      <h2>TIMELINE</h2>
+      <div id="timeline">
+        <div class="timeline-event" data-date="2025-09-05">
+          <div class="timeline-date">Sep 5, 2025</div>
+          <div class="timeline-desc">Stagwell report leaks Israel reputation crisis roadmap</div>
+          <a href="https://www.dropsitenews.com/p/leaked-israel-reputation-survey-research-mark-penn-stagwell?utm_source=publication-search" class="x-link" target="_blank">View thread →</a>
+        </div>
+        <div class="timeline-event" data-date="2025-09-08">
+          <div class="timeline-date">Sep 8, 2025</div>
+          <div class="timeline-desc">Jerusalem attack kills 6, highlighting security threats</div>
+          <a href="https://www.timesofisrael.com/jerusalem-terror-attack-exposes-fresh-holes-in-reliance-on-west-bank-security-barrier/" class="x-link" target="_blank">View thread →</a>
+        </div>
+        <div class="timeline-event" data-date="2025-09-10">
+          <div class="timeline-date">Sep 10, 2025 • 12:23:15 MT</div>
+          <div class="timeline-desc">Charlie Kirk shot during UVU Q&A with Hunter Kozak</div>
+          <a href="https://abcnews.go.com/US/charlie-kirk-shot-event-utah-university-jd-vance/story?id=125451514" class="x-link" target="_blank">View thread →</a>
+        </div>
+        <div class="timeline-event" data-date="2025-09-12">
+          <div class="timeline-date">Sep 12, 2025</div>
+          <div class="timeline-desc">Tyler Robinson arrested, charged with aggravated murder</div>
+          <a href="https://www.pbs.org/newshour/nation/what-we-know-so-far-about-the-charlie-kirk-shooting-suspect" class="x-link" target="_blank">View thread →</a>
+        </div>
+        <div class="timeline-event" data-date="2025-09-13">
+          <div class="timeline-date">Sep 13, 2025</div>
+          <div class="timeline-desc">Initial investigation notes hit shakes U.S. conservatives</div>
+          <a href="https://www.abc.net.au/news/2025-09-12/charlie-kirk-assassination-test-for-donald-trump/105765246" class="x-link" target="_blank">View thread →</a>
+        </div>
+        <div class="timeline-event" data-date="2025-09-29">
+          <div class="timeline-date">Sep 29, 2025</div>
+          <div class="timeline-desc">First ID of Consolidated Training Groups</div>
+          <a href="https://x.com/Piper_truth1/status/1972472141661802760" class="x-link" target="_blank">View thread →</a>
+        </div>
+        <div class="timeline-event" data-date="2025-10-01">
+          <div class="timeline-date">Oct 01, 2025</div>
+          <div class="timeline-desc">First ID of Rick Cutler</div>
+          <a href="https://x.com/Piper_truth1/status/1973433316234969154" class="x-link" target="_blank">View thread →</a>
+        </div>
+        <div class="timeline-event" data-date="2025-10-05">
+          <div class="timeline-date">Oct 5, 2025</div>
+          <div class="timeline-desc">Mega-thread connects security > OUR > LDS > trafficking networks</div>
+          <a href="https://x.com/shogtongue/status/1974671213416042856" class="x-link" target="_blank">View thread →</a>
+        </div>
+        <div class="timeline-event" data-date="2025-10-17">
+          <div class="timeline-date">Oct 17, 2025</div>
+          <div class="timeline-desc">Video analysis proves security countdown coordination</div>
+          <a href="https://x.com/shogtongue/status/1979107661288243489" class="x-link" target="_blank">View thread →</a>
+        </div>
+        <div class="timeline-event" data-date="2025-10-21">
+          <div class="timeline-date">Oct 21, 2025</div>
+          <div class="timeline-desc">New footage analysis reveals additional security movements</div>
+          <a href="https://x.com/shogtongue/status/1980896905740833050" class="x-link" target="_blank">View thread →</a>
+        </div>
+      </div>
+
+      <div class="filter-section">
+        <h3>FILTER BY GROUP</h3>
+        <div class="filter-options" id="groupFilters">
+          <div class="filter-option active" data-group="all">All</div>
+          <div class="filter-option" data-group="victim">Victim</div>
+          <div class="filter-option" data-group="security">Security</div>
+          <div class="filter-option" data-group="tpusa">TPUSA</div>
+          <div class="filter-option" data-group="event">Event</div>
+          <div class="filter-option" data-group="network">Network</div>
+          <div class="filter-option" data-group="suspect">Suspect</div>
+          <div class="filter-option" data-group="investigators">Investigators</div>
+        </div>
+      </div>
+
+      <div class="filter-section">
+        <h3>MINIMUM HEAT SCORE</h3>
+        <input type="range" min="1" max="10" value="1" class="heat-slider" id="heatSlider">
+        <div style="font-size: 12px; text-align: center;">Heat: <span id="heatValue">1</span>/10</div>
+      </div>
+
+      <div class="credits">
+        <h3>RESEARCH CREDITS</h3>
+        <div style="font-size: 13px; line-height: 1.6;">
+          Primary Investigation: <a href="https://x.com/shogtongue" class="credit-link" target="_blank">@shogtongue</a><br>
+          Security Team IDs: <a href="https://x.com/Piper_truth1" class="credit-link" target="_blank">@Piper_truth1</a><br>
+          LDS Network Research: <a href="https://x.com/TheLFLounge" class="credit-link" target="_blank">@TheLFLounge</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- CENTER PANEL - NETWORK VISUALIZATION -->
+    <div id="centerPanel" class="panel">
+      <div id="visualizationContainer">
+        <div id="visualization">
+          <!-- Network circles and connections will be rendered here -->
+        </div>
+      </div>
+      <div class="controls">
+        <button class="control-btn" id="resetView">Reset View</button>
+        <button class="control-btn" id="toggleLabels">Show Labels</button>
+        <button class="control-btn" id="toggleConnections">Hide Connections</button>
+        <button class="control-btn" id="zoomIn">Zoom In</button>
+        <button class="control-btn" id="zoomOut">Zoom Out</button>
+      </div>
+    </div>
+
+    <!-- RIGHT PANEL - DOSSIER & PEOPLE -->
+    <div id="rightPanel" class="panel">
+      <h2>INVESTIGATION DOSSIER</h2>
+      <div id="dossierContent">
+        <p style="color: var(--text-secondary); font-size: 13px;">Select a person to view detailed information</p>
+      </div>
+
+      <h2 style="margin-top: 30px;">PEOPLE DATABASE</h2>
+      <div id="peopleList">
+        <!-- People will be populated by JavaScript -->
+      </div>
+    </div>
+
+    <!-- BOTTOM PANEL - COMMENTS -->
+    <div id="bottomPanel" class="panel">
+      <h2>INVESTIGATOR NOTES</h2>
+      <div id="commentsList">
+        <div class="comment">
+          <strong>@shogtongue</strong> • Critical finding: Frank Turek pointing at roof 4 minutes before shot indicates prior knowledge of shooter position.
+        </div>
+        <div class="comment">
+          <strong>Researcher</strong> • SD card removal by Terryl needs deeper analysis. Potential evidence suppression.
+        </div>
+      </div>
+      <textarea placeholder="Add your investigation notes..." id="commentInput"></textarea>
+      <button onclick="addComment()" style="margin-top: 12px;">POST NOTE</button>
+    </div>
+  </div>
+
+<script>
+// COMPREHENSIVE INVESTIGATION DATA
+const investigationData = {
+  people: [
+    // VICTIM & FAMILY
+    {id: 0, name: "Charlie Kirk", group: "victim", heat: 1, role: "TPUSA Founder/CEO", status: "Deceased", title: "Victim", details: "Fatally shot at 12:23:15 PM MT during UVU event. Single bullet from rooftop. Central focus of investigation."},
+    {id: 1, name: "Erika Kirk", group: "victim", heat: 7, role: "Wife, CEO & Chair of the Board", status: "Active", title: "Wife & CEO", details: "DoD contractor family. Dad helped install Israel's Iron Dome. Received calls post-shot from Mikey McCoy. Elected unanimously on September 18, 2025, to lead post-Charlie Kirk's death. Oversees operations and strategic direction."},
+    {id: 2, name: "Mary Kirk", group: "victim", heat: 1, role: "Family Member", status: "Active", title: "Family Member", details: "No specific event role; family mention only."},
+    {id: 3, name: "Robert K. Kirk", group: "victim", heat: 1, role: "Family Member", status: "Active", title: "Family Member", details: "No specific event role; family mention only."},
+    {id: 4, name: "Kimberly Kirk", group: "victim", heat: 1, role: "Family Member", status: "Active", title: "Family Member", details: "No specific event role; family mention only."},
+    
+    // SECURITY TEAM
+    {id: 6, name: "Brian Harpole", group: "security", heat: 10, role: "Security Lead", status: "Missing", title: "Director, Consolidated Training Group", details: "Applied IFAK trauma kit. First responder. Security detail for Mikey McCoy/Erika Kirk after UVU. Countdown coordination observed."},
+    {id: 7, name: "Rick Cutler", group: "security", heat: 10, role: "Security Guard", status: "Missing", title: "Retired Police Officer", details: "'Palm pistol guy'. OUR Guatemala connections. Brother confirmed involvement via FB. Appeared in Montana post-event."},
+    {id: 8, name: "Dan Flood", group: "security", heat: 9, role: "Security Director", status: "Active", title: "TPUSA Security Director", details: "Countdown coordination observed. Stage manager during event. Multiple watch/phone checks."},
+    {id: 9, name: "Blake", group: "security", heat: 7, role: "Security Guard", status: "Active", title: "Security Guard", details: "Listens to Dan's signals; presses earpiece. Checks watch with Dan. Helps carry Kirk."},
+    {id: 10, name: "Justin", group: "security", heat: 4, role: "Security Guard", status: "Active", title: "Security Guard", details: "Presses earpiece; warns Hunter not to touch mic."},
+    {id: 11, name: "Cooper", group: "security", heat: 5, role: "Security/Tech", status: "Active", title: "Security/Tech", details: "Adjusts mic height; warns Hunter."},
+    {id: 12, name: "Blake Harruff", group: "security", heat: 7, role: "Guard/Tech", status: "Active", title: "Guard/Tech", details: "Adjusts mic; rushes speaker. Montana with Cutler."},
+    {id: 13, name: "Unnamed Officer", group: "security", heat: 2, role: "Security", status: "Active", title: "Security", details: "Generic security presence."},
+    
+    // TPUSA INNER CIRCLE & BOARD
+    {id: 14, name: "Mikey McCoy", group: "tpusa", heat: 10, role: "Chief of Staff", status: "Active", title: "TPUSA Chief of Staff", details: "Son of Pastor Rob McCoy. Observed making calls post-event. High suspicion. Continues hosting show."},
+    {id: 15, name: "Blake Neff", group: "tpusa", heat: 8, role: "Co-host", status: "Active", title: "Charlie Kirk Show Co-host", details: "On phone during event. Unusual behavior observed. Defense video analysis shows inconsistencies."},
+    {id: 16, name: "Andrew Kolvet", group: "tpusa", heat: 6, role: "Executive Producer/Co-host", status: "Active", title: "Executive Producer/Co-host", details: "Inner circle; absent from TPUSA site post-event. No direct suspicions. Continues show direction."},
+    {id: 17, name: "Jack Posobiec", group: "tpusa", heat: 5, role: "TPUSA Ally", status: "Active", title: "TPUSA Ally", details: "Attended security conference with Gen. Mike Flynn. Front-runner for TPUSA 'throne.' Pro-Israel."},
+    {id: 18, name: "TPUSA Board", group: "tpusa", heat: 4, role: "Organizational Leadership", status: "Active", title: "Organizational Leadership", details: "Legacy continuity post-event. Potential censorship of Kirk's notebooks."},
+    {id: 19, name: "Maycee Crofts", group: "tpusa", heat: 3, role: "TPUSA Staff", status: "Active", title: "TPUSA Staff", details: "Handled microphone before assassination. Event coordination role."},
+    
+    // NEW TPUSA BOARD MEMBERS
+    {id: 38, name: "Doug De Groote", group: "tpusa", heat: 4, role: "Board Member", status: "Active", title: "TPUSA Board Member", details: "Signed the announcement electing Erika Kirk; involved in governance."},
+    {id: 39, name: "Mike Miller", group: "tpusa", heat: 4, role: "Board Member", status: "Active", title: "TPUSA Board Member", details: "Signed the announcement; key in decision-making for leadership transition."},
+    {id: 40, name: "Tom Sodeika", group: "tpusa", heat: 4, role: "Board Member", status: "Active", title: "TPUSA Board Member", details: "Signed the announcement; focuses on organizational stability."},
+    {id: 41, name: "David Engelhardt", group: "tpusa", heat: 4, role: "Board Member", status: "Active", title: "TPUSA Board Member", details: "Signed the announcement; supports financial and operational oversight."},
+    {id: 42, name: "Bill Montgomery", group: "tpusa", heat: 6, role: "Founder & Board Member", status: "Active", title: "TPUSA Founder & Board Member", details: "Co-founder with Charlie Kirk; long-term governance role."},
+    {id: 43, name: "Tyler Bowyer", group: "tpusa", heat: 5, role: "COO & Board Member", status: "Active", title: "TPUSA COO & Board Member", details: "Chief Operating Officer; handles day-to-day operations and board decisions."},
+    {id: 44, name: "Rob McCoy", group: "tpusa", heat: 5, role: "Board Member", status: "Active", title: "TPUSA Board Member", details: "Pastor and advisor; involved in strategic and ideological direction. Father of Mikey McCoy."},
+    
+    // EVENT PERSONNEL
+    {id: 20, name: "Terryl", group: "event", heat: 9, role: "Organizer", status: "Active", title: "Event Organizer", details: "Removed SD card post-incident. LDS connections. Phone with ops team. Critical evidence suppression suspicion."},
+    {id: 21, name: "Frank Turek", group: "event", heat: 8, role: "Photographer", status: "Active", title: "Event Photographer", details: "Pointed at Losee Center roof at 6:28 (4 minutes before shot). Critical observation indicating prior knowledge."},
+    {id: 22, name: "Hunter Kozak", group: "event", heat: 7, role: "Q&A Questioner", status: "Active", title: "Event Attendee", details: "'Mass shooters?' question triggered immediate chaos before shot. LDS connections observed."},
+    {id: 24, name: "George Zinn", group: "event", heat: 2, role: "Attendee/Distraction Creator", status: "Active", title: "Attendee/Distraction Creator", details: "Attempts to create diversion pre-shot. Mormon/LDS connected."},
+    {id: 26, name: "Phil Lyman", group: "event", heat: 8, role: "Attendee", status: "Active", title: "Attendee", details: "Present at event; seen with Charlie pre-shot. Post-assassination, coaching Jeb Jacobi on camera."},
+    {id: 27, name: "Jason Behunin", group: "event", heat: 7, role: "Person of Interest", status: "Active", title: "Ex-cop", details: "In reserved area in red hat. Ex-cop."},
+    {id: 28, name: "Jeb Jacobi", group: "event", heat: 5, role: "Student Speaker", status: "Active", title: "Student Speaker", details: "One of first students to speak up; coached by Phil Lyman post-event."},
+    
+    // NETWORK
+    {id: 29, name: "Tim Ballard", group: "network", heat: 9, role: "OUR Founder", status: "Active", title: "Operation Underground Railroad Founder", details: "Security conference connections. LDS and anti-trafficking networks. OUR Guatemala operations overlap."},
+    {id: 30, name: "Elder M. Russell Ballard", group: "network", heat: 2, role: "LDS Church Leader", status: "Deceased", title: "LDS Church Leader", details: "Acting President, Quorum of Twelve. Ties to Tim Ballard (severed publicly). Overlaps with LDS-CIA research."},
+    {id: 31, name: "Gary Rabine", group: "network", heat: 7, role: "Mentors", status: "Active", title: "Mentors", details: "Mentor figure."},
+    {id: 32, name: "David Horowitz", group: "network", heat: 5, role: "Mentors", status: "Active", title: "Mentors", details: "Mentor figure."},
+    {id: 33, name: "Bill Montgomery", group: "network", heat: 6, role: "Mentors", status: "Active", title: "Mentors", details: "Mentor figure."},
+    
+    // INVESTIGATORS
+    {id: 34, name: "@shogtongue", group: "investigators", heat: 0, role: "Primary Investigator", status: "Active", title: "Primary Investigator", details: "Mega-thread (Oct 5), timer thread (Oct 17), new footage (Oct 21). Primary investigation lead."},
+    {id: 35, name: "@Piper_truth1", group: "investigators", heat: 0, role: "Security Team IDs", status: "Active", title: "Security Team IDs", details: "Identified security team (Oct 1 thread). Consolidated Training Group connections."},
+    {id: 36, name: "@TheLFLounge", group: "investigators", heat: 0, role: "LDS-CIA Research", status: "Active", title: "LDS-CIA Research", details: "LDS-CIA web research."},
+    
+    // SUSPECT
+    {id: 37, name: "Tyler Robinson", group: "suspect", heat: 10, role: "Official Shooter", status: "Incarcerated", title: "UVU Student", details: "Charged with aggravated murder. Lone shooter per official narrative. Anti-conservative motive cited."}
+  ],
+
+  connections: [
+    {source: 0, target: 1, type: "family", weight: 8},
+    {source: 0, target: 6, type: "security", weight: 9},
+    {source: 0, target: 7, type: "security", weight: 9},
+    {source: 0, target: 8, type: "security", weight: 8},
+    {source: 0, target: 14, type: "employment", weight: 8},
+    {source: 0, target: 15, type: "employment", weight: 7},
+    {source: 0, target: 20, type: "organization", weight: 6},
+    {source: 0, target: 23, type: "event", weight: 6},
+    {source: 6, target: 7, type: "collaboration", weight: 9},
+    {source: 6, target: 8, type: "coordination", weight: 7},
+    {source: 7, target: 29, type: "affiliation", weight: 7},
+    {source: 14, target: 15, type: "employment", weight: 7},
+    {source: 14, target: 44, type: "family", weight: 8},
+    {source: 20, target: 22, type: "LDS", weight: 5},
+    {source: 21, target: 37, type: "evidence", weight: 6},
+    {source: 26, target: 28, type: "coaching", weight: 5},
+    {source: 29, target: 30, type: "personal", weight: 8},
+    {source: 34, target: 35, type: "collaboration", weight: 7},
+    {source: 42, target: 0, type: "founder", weight: 7},
+    {source: 43, target: 0, type: "employment", weight: 6},
+    {source: 44, target: 0, type: "board", weight: 6}
+  ]
+};
+
+// GLOBAL STATE
+let appState = {
+  selectedPerson: 0,
+  showLabels: false,
+  showConnections: true,
+  currentFilter: "all",
+  minHeat: 1,
+  zoomLevel: 1.0,
+  offsetX: 0,
+  offsetY: 0
+};
+
+// START SCREEN & INITIALIZATION
+document.getElementById('startScreen').addEventListener('click', function() {
+  this.style.opacity = '0';
+  setTimeout(() => {
+    this.style.display = 'none';
+    document.getElementById('app').style.opacity = '1';
+    initializeDashboard();
+  }, 1000);
+});
+
+function initializeDashboard() {
+  renderNetworkVisualization();
+  renderPeopleList();
+  setupSearch();
+  setupFilters();
+  setupControls();
+  showDossier(0);
+}
+
+// SCALED CONCENTRIC CIRCLE POSITIONING
+function calculateConcentricPosition(person, index, groupMembers) {
+  const container = document.getElementById('visualization');
+  const centerX = (container.clientWidth / 2) + appState.offsetX;
+  const centerY = (container.clientHeight / 2) + appState.offsetY;
+  
+  // Scale down the radii to fit better in the container
+  const scaleFactor = 0.6; // Reduced from full size
+  const baseRadii = [0, 60, 120, 180, 240, 300, 360];
+  const scaledRadii = baseRadii.map(radius => radius * scaleFactor * appState.zoomLevel);
+  
+  // Define circle layers based on groups and relationships
+  const circleLayers = {
+    // Layer 0: Charlie Kirk (center)
+    0: { radius: scaledRadii[0], label: "Charlie Kirk" },
+    
+    // Layer 1: Immediate family and closest associates
+    1: { radius: scaledRadii[1], groups: ["X"], label: "Family & Close Associates" },
+    
+    // Layer 2: TPUSA leadership and board
+    2: { radius: scaledRadii[2], groups: ["tpusa"], label: "TPUSA Leadership" },
+    
+    // Layer 3: Security team
+    3: { radius: scaledRadii[3], groups: ["security"], label: "Security Team" },
+    
+    // Layer 4: Event personnel
+    4: { radius: scaledRadii[4], groups: ["event"], label: "Event Personnel" },
+    
+    // Layer 5: Network connections
+    5: { radius: scaledRadii[5], groups: ["network"], label: "Network" },
+    
+    // Layer 6: Investigators and suspect
+    6: { radius: scaledRadii[6], groups: ["investigators", "suspect"], label: "Investigators & Suspect" }
+  };
+  
+  // Find which layer this person belongs to
+  let layer = 6; // Default to outermost layer
+  for (let i = 0; i <= 6; i++) {
+    if (i === 0 && person.id === 0) {
+      layer = 0;
+      break;
+    } else if (circleLayers[i].groups && circleLayers[i].groups.includes(person.group)) {
+      layer = i;
+      break;
+    }
+  }
+  
+  const layerConfig = circleLayers[layer];
+  const peopleInLayer = groupMembers.filter(p => {
+    if (p.id === 0) return layer === 0;
+    return circleLayers[layer].groups && circleLayers[layer].groups.includes(p.group);
+  });
+  
+  const layerIndex = peopleInLayer.indexOf(person);
+  const totalInLayer = peopleInLayer.length;
+  
+  // Calculate angle around the circle
+  const angle = (layerIndex / totalInLayer) * 2 * Math.PI;
+  
+  // Calculate position
+  const x = centerX + layerConfig.radius * Math.cos(angle);
+  const y = centerY + layerConfig.radius * Math.sin(angle);
+  
+  return { x, y, layer };
+}
+
+// SCALED CONCENTRIC CIRCLE VISUALIZATION
+function renderNetworkVisualization() {
+  const container = document.getElementById('visualization');
+  container.innerHTML = '';
+  
+  const width = container.clientWidth;
+  const height = container.clientHeight;
+
+  // Filter people based on current filters
+  const filteredPeople = investigationData.people.filter(person => 
+    (appState.currentFilter === "all" || person.group === appState.currentFilter) &&
+    person.heat >= appState.minHeat
+  );
+
+  // Calculate center point
+  const centerX = (width / 2) + appState.offsetX;
+  const centerY = (height / 2) + appState.offsetY;
+
+  // Draw concentric circles (scaled)
+  const scaleFactor = 0.6;
+  const baseRadii = [0, 60, 120, 180, 240, 300, 360];
+  const scaledRadii = baseRadii.map(radius => radius * scaleFactor * appState.zoomLevel);
+  const circleLabels = [
+    "Charlie Kirk",
+    "Family & Close Associates", 
+    "TPUSA Leadership",
+    "Security Team",
+    "Event Personnel",
+    "Network",
+    "Investigators & Suspect"
+  ];
+
+  for (let i = 1; i < scaledRadii.length; i++) {
+    const circle = document.createElement('div');
+    circle.className = 'concentric-circle';
+    circle.style.width = scaledRadii[i] * 2 + 'px';
+    circle.style.height = scaledRadii[i] * 2 + 'px';
+    circle.style.left = centerX + 'px';
+    circle.style.top = centerY + 'px';
+    container.appendChild(circle);
+    
+    // Add circle label
+    const label = document.createElement('div');
+    label.className = 'circle-label';
+    label.textContent = circleLabels[i];
+    label.style.left = (centerX + scaledRadii[i] + 10) + 'px';
+    label.style.top = centerY + 'px';
+    container.appendChild(label);
+  }
+
+  // Group people by their groups for positioning
+  const peopleByGroup = {};
+  filteredPeople.forEach(person => {
+    if (!peopleByGroup[person.group]) {
+      peopleByGroup[person.group] = [];
+    }
+    peopleByGroup[person.group].push(person);
+  });
+
+  // Create connections FIRST (so they appear behind nodes)
+  if (appState.showConnections) {
+    investigationData.connections.forEach(conn => {
+      const source = investigationData.people.find(p => p.id === conn.source);
+      const target = investigationData.people.find(p => p.id === conn.target);
+      
+      // Only show connections if both nodes are in filtered view
+      if (source && target && filteredPeople.includes(source) && filteredPeople.includes(target)) {
+        const sourceGroup = peopleByGroup[source.group];
+        const targetGroup = peopleByGroup[target.group];
+        
+        const sourcePos = calculateConcentricPosition(source, sourceGroup.indexOf(source), sourceGroup);
+        const targetPos = calculateConcentricPosition(target, targetGroup.indexOf(target), targetGroup);
+        
+        const connection = document.createElement('div');
+        connection.className = 'connection';
+        
+        const dx = targetPos.x - sourcePos.x;
+        const dy = targetPos.y - sourcePos.y;
+        const length = Math.sqrt(dx * dx + dy * dy);
+        const angle = Math.atan2(dy, dx) * 180 / Math.PI;
+        
+        connection.style.width = length + 'px';
+        connection.style.left = sourcePos.x + 'px';
+        connection.style.top = sourcePos.y + 'px';
+        connection.style.transform = `rotate(${angle}deg)`;
+        connection.style.opacity = 0.3 + (conn.weight / 20);
+        connection.style.height = (conn.weight / 5) + 'px';
+        
+        container.appendChild(connection);
+      }
+    });
+  }
+
+  // Create nodes LAST (so they appear on top)
+  filteredPeople.forEach(person => {
+    const groupMembers = peopleByGroup[person.group] || [];
+    const position = calculateConcentricPosition(person, groupMembers.indexOf(person), groupMembers);
+    
+    const node = document.createElement('div');
+    node.className = 'node';
+    
+    // Size based on heat score (scaled by zoom)
+    const baseSize = 2 + person.heat * 4;
+    const size = baseSize * appState.zoomLevel;
+    node.style.width = size + 'px';
+    node.style.height = size + 'px';
+    
+    // Color based on heat score using the new color system
+    const heatColor = `var(--heat-${person.heat})`;
+    node.style.background = heatColor;
+    
+    node.style.left = position.x + 'px';
+    node.style.top = position.y + 'px';
+    node.dataset.id = person.id;
+    
+    // Create label
+    const label = document.createElement('div');
+    label.className = 'node-label';
+    label.textContent = `${person.name} (${person.heat}/10)`;
+    label.style.left = '50%';
+    label.style.top = (size/2 + 10) + 'px';
+    label.style.transform = 'translateX(-50%)';
+    label.style.fontSize = (11 * appState.zoomLevel) + 'px';
+    
+    if (appState.showLabels) {
+      label.style.opacity = '1';
+    }
+    
+    node.appendChild(label);
+    
+    // Simple click handler
+    node.addEventListener('click', function(e) {
+      e.stopPropagation();
+      const personId = parseInt(this.dataset.id);
+      showDossier(personId);
+      highlightNode(personId);
+    });
+    
+    // Highlight if selected
+    if (person.id === appState.selectedPerson) {
+      node.style.boxShadow = '0 0 0 3px #ff0000, 0 0 10px rgba(255, 0, 0, 0.3)';
+      node.style.zIndex = '40';
+    }
+    
+    container.appendChild(node);
+  });
+}
+
+function highlightNode(id) {
+  appState.selectedPerson = parseInt(id);
+  renderNetworkVisualization();
+}
+
+// DOSSIER SYSTEM
+function showDossier(personId) {
+  const person = investigationData.people.find(p => p.id === personId);
+  const connections = investigationData.connections.filter(conn => 
+    conn.source === personId || conn.target === personId
+  );
+  
+  let html = `
+    <h3>${person.name}</h3>
+    <div class="heat-bar-visual">
+      <div class="heat-bar-fill" style="width: ${person.heat * 10}%; background: var(--heat-${person.heat});"></div>
+      <div class="heat-bar-empty"></div>
+      <span class="heat-score" style="background: var(--heat-${person.heat});">${person.heat}/10</span>
+    </div>
+    <div class="role" style="margin-top: 8px;">${person.title}</div>
+    <div class="status">${person.status.toUpperCase()}</div>
+    <p style="margin-top: 16px; font-size: 13px; line-height: 1.5;">${person.details}</p>
+  `;
+  
+  if (connections.length > 0) {
+    html += `<h4 style="margin-top: 24px;">CONNECTIONS</h4>`;
+    connections.forEach(conn => {
+      const otherId = conn.source === personId ? conn.target : conn.source;
+      const otherPerson = investigationData.people.find(p => p.id === otherId);
+      if (otherPerson) {
+        html += `<div class="person-item" onclick="showDossier(${otherId}); highlightNode('${otherId}')">
+          <span class="group-indicator group-${otherPerson.group}"></span>
+          <strong>${otherPerson.name}</strong> <span class="heat-score" style="background: var(--heat-${otherPerson.heat});">${otherPerson.heat}/10</span>
+          <div class="role">${otherPerson.role}</div>
+        </div>`;
+      }
+    });
+  }
+  
+  document.getElementById('dossierContent').innerHTML = html;
+  highlightNode(personId);
+}
+
+// PEOPLE LIST
+function renderPeopleList() {
+  const peopleList = document.getElementById('peopleList');
+  let html = '';
+  
+  // Sort by heat score (highest first)
+  const sortedPeople = [...investigationData.people].sort((a, b) => b.heat - a.heat);
+  
+  sortedPeople.forEach(person => {
+    html += `
+      <div class="person-item" onclick="showDossier(${person.id}); highlightNode('${person.id}')">
+        <span class="group-indicator group-${person.group}"></span>
+        <strong>${person.name}</strong> <span class="heat-score" style="background: var(--heat-${person.heat});">${person.heat}/10</span>
+        <div class="role">${person.role}</div>
+        <div class="status">${person.status}</div>
+      </div>
+    `;
+  });
+  
+  peopleList.innerHTML = html;
+}
+
+// SEARCH FUNCTIONALITY
+function setupSearch() {
+  const searchBox = document.getElementById('searchBox');
+  searchBox.addEventListener('input', function(e) {
+    const term = e.target.value.toLowerCase();
+    const people = document.querySelectorAll('.person-item');
+    
+    people.forEach(person => {
+      const text = person.textContent.toLowerCase();
+      person.style.display = text.includes(term) ? 'block' : 'none';
+    });
+  });
+}
+
+// FILTERS
+function setupFilters() {
+  // Group filters
+  const groupFilters = document.querySelectorAll('.filter-option');
+  groupFilters.forEach(filter => {
+    filter.addEventListener('click', function() {
+      // Update active state
+      groupFilters.forEach(f => f.classList.remove('active'));
+      this.classList.add('active');
+      
+      // Update filter
+      appState.currentFilter = this.dataset.group;
+      renderNetworkVisualization();
+    });
+  });
+  
+  // Heat slider
+  const heatSlider = document.getElementById('heatSlider');
+  const heatValue = document.getElementById('heatValue');
+  
+  heatSlider.addEventListener('input', function() {
+    appState.minHeat = parseInt(this.value);
+    heatValue.textContent = this.value;
+    renderNetworkVisualization();
+  });
+}
+
+// CONTROLS
+function setupControls() {
+  document.getElementById('resetView').addEventListener('click', function() {
+    appState.selectedPerson = 0;
+    appState.zoomLevel = 1.0;
+    appState.offsetX = 0;
+    appState.offsetY = 0;
+    renderNetworkVisualization();
+    showDossier(0);
+  });
+  
+  document.getElementById('toggleLabels').addEventListener('click', function() {
+    appState.showLabels = !appState.showLabels;
+    this.textContent = appState.showLabels ? 'Hide Labels' : 'Show Labels';
+    renderNetworkVisualization();
+  });
+  
+  document.getElementById('toggleConnections').addEventListener('click', function() {
+    appState.showConnections = !appState.showConnections;
+    this.textContent = appState.showConnections ? 'Hide Connections' : 'Show Connections';
+    renderNetworkVisualization();
+  });
+
+  // Zoom controls
+  document.getElementById('zoomIn').addEventListener('click', function() {
+    appState.zoomLevel = Math.min(appState.zoomLevel * 1.2, 3.0);
+    renderNetworkVisualization();
+  });
+
+  document.getElementById('zoomOut').addEventListener('click', function() {
+    appState.zoomLevel = Math.max(appState.zoomLevel / 1.2, 0.5);
+    renderNetworkVisualization();
+  });
+
+  // Add panning with mouse drag
+  let isDragging = false;
+  let lastX = 0;
+  let lastY = 0;
+
+  const visualization = document.getElementById('visualization');
+  
+  visualization.addEventListener('mousedown', function(e) {
+    if (e.target.classList.contains('node')) return;
+    isDragging = true;
+    lastX = e.clientX;
+    lastY = e.clientY;
+    visualization.style.cursor = 'grabbing';
+  });
+
+  document.addEventListener('mousemove', function(e) {
+    if (!isDragging) return;
+    
+    const deltaX = e.clientX - lastX;
+    const deltaY = e.clientY - lastY;
+    
+    appState.offsetX += deltaX;
+    appState.offsetY += deltaY;
+    
+    lastX = e.clientX;
+    lastY = e.clientY;
+    
+    renderNetworkVisualization();
+  });
+
+  document.addEventListener('mouseup', function() {
+    isDragging = false;
+    visualization.style.cursor = 'default';
+  });
+}
+
+// COMMENTS SYSTEM
+function addComment() {
+  const input = document.getElementById('commentInput');
+  const text = input.value.trim();
+  
+  if (text) {
+    const commentsList = document.getElementById('commentsList');
+    const comment = document.createElement('div');
+    comment.className = 'comment';
+    comment.innerHTML = `<strong>Researcher</strong> • ${text}`;
+    commentsList.appendChild(comment);
+    input.value = '';
+    commentsList.scrollTop = commentsList.scrollHeight;
+  }
+}
+
+// Enter key for comments
+document.getElementById('commentInput').addEventListener('keypress', function(e) {
+  if (e.key === 'Enter' && !e.shiftKey) {
+    e.preventDefault();
+    addComment();
+  }
+});
+
+// Handle window resize
+window.addEventListener('resize', function() {
+  renderNetworkVisualization();
+});
+
+// Make functions globally available
+window.showDossier = showDossier;
+window.highlightNode = highlightNode;
+window.addComment = addComment;
+</script>
+</body>
+</html>
